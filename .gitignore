@@ -1,2 +1,3 @@
-/databases/database.sqlite
-/vendor/
+database/database.sqlite
+vendor/
+.DS_Store

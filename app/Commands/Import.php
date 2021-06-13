@@ -13,7 +13,7 @@ class Import extends Command
      *
      * @var string
      */
-    protected $signature = 'import {name} {path}';
+    protected $signature = 'import {name} {path} {parser}';
 
     /**
      * The description of the command.
@@ -37,7 +37,7 @@ class Import extends Command
     /**
      * ES Index
      */
-    const INDEX = 'leaks_test';
+    const INDEX = 'leaks';
 
     /**
      * Chunk size
@@ -52,6 +52,13 @@ class Import extends Command
     protected $name;
 
     /**
+     * Parser class
+     *
+     * @var App\Libs\Contracts\Parser
+     */
+    protected $parser;
+
+    /**
      * Execute the console command.
      *
      * @return mixed
@@ -62,6 +69,8 @@ class Import extends Command
 
         $path = $this->argument('path');
         $this->name = $this->argument('name');
+        $parserClass = 'App\\Libs\\Parsers\\' . $this->argument('parser');
+        $this->parser = new $parserClass;
 
         $this->info('Analysing ' . $path);
 
@@ -86,17 +95,27 @@ class Import extends Command
         if ($handle) {
             $data = ['body' => []];
             while (!feof($handle)) {
-                $res = $this->processLine(fgets($handle));
-                if ($res) {
-                    $data['body'][] = [
-                        'index' => [
-                            '_index' => self::INDEX,
-                            '_id' => md5(json_encode($data)),
-                        ]
-                    ];
-                    // $res['file'] = $filePath;
-                    $data['body'][] = $res;
+
+                $line = fgets($handle);
+                if (!$line) {
+                    continue;
                 }
+
+                $res = $this->parser->processLine($line);
+                if (!$res) {
+                    $this->error('Line not processed' . $line);
+                    continue;
+                }
+
+                $res['dump'] = $this->name;
+
+                $data['body'][] = [
+                    'index' => [
+                        '_index' => self::INDEX,
+                        '_id' => md5(json_encode($data)),
+                    ]
+                ];
+                $data['body'][] = $res;
 
                 if (count($data['body']) >= self::CHUNK) {
                     $this->insert($data);
@@ -109,38 +128,9 @@ class Import extends Command
         File::create(['path' => $filePath]);
     }
 
-    private function processLine($line)
-    {
-        if (!$line) {
-            return;
-        }
-
-        preg_match('/^(.*?)[:|;|\|](.*?)$/', $line, $matches, PREG_OFFSET_CAPTURE);
-
-        if (!isset($matches[1][0]) || !isset($matches[2][0])) {
-            $this->error('Line not match: ' . $line);
-            return;
-        }
-
-        $data = [
-            'dump' => $this->name,
-            'password' => $matches[2][0],
-        ];
-
-        if (filter_var($matches[1][0], FILTER_VALIDATE_EMAIL)) {
-            $data['email'] = $matches[1][0];
-        } else {
-            $data['user'] = $matches[1][0];
-        }
-
-        // $this->line($data['user'] . ' : ' . $data['password']);
-
-        return $data;
-    }
-
     private function insert($data)
     {
-        // $this->info('Inserting bulk');
+        $this->line('Sending ES Chunk');
         $res = $this->client->bulk($data);
         if ($res['errors']) {
             $this->error($res['errors']);

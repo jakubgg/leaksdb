@@ -37,7 +37,7 @@ class Import extends Command
     /**
      * ES Index
      */
-    const INDEX = 'leaks_test';
+    const INDEX = 'leaks';
 
     /**
      * Chunk size

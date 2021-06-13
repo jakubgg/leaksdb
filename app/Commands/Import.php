@@ -37,12 +37,12 @@ class Import extends Command
     /**
      * ES Index
      */
-    const INDEX = 'leaks';
+    const INDEX = 'leaks_test';
 
     /**
      * Chunk size
      */
-    const CHUNK = 1000;
+    const CHUNK = 500;
 
     /**
      * Dump name
@@ -76,7 +76,7 @@ class Import extends Command
 
         $di = new \RecursiveDirectoryIterator($path);
         foreach (new \RecursiveIteratorIterator($di) as $filename => $file) {
-            if ($file->getExtension() == 'txt') {
+            if ($file->getExtension() == 'txt' || $file->getExtension() == 'csv') {
                 $this->processFile($filename);
             }
         }
@@ -91,6 +91,7 @@ class Import extends Command
             return;
         }
 
+        $total = 0;
         $handle = fopen($filePath, 'r');
         if ($handle) {
             $data = ['body' => []];
@@ -117,20 +118,24 @@ class Import extends Command
                 ];
                 $data['body'][] = $res;
 
-                if (count($data['body']) >= self::CHUNK) {
+                $total++;
+                if ($total % self::CHUNK == 0) {
                     $this->insert($data);
-                    $data = ['body' => []];
+                    $this->line($total . ' records sent');
+                    $data['body'] = [];
                 }
             }
             fclose($handle);
         }
+
+        // Sent last data (< chunk)
+        $this->insert($data);
 
         File::create(['path' => $filePath]);
     }
 
     private function insert($data)
     {
-        $this->line('Sending ES Chunk');
         $res = $this->client->bulk($data);
         if ($res['errors']) {
             $this->error($res['errors']);

@@ -136,10 +136,13 @@ class Import extends Command
 
     private function insert($data)
     {
-        $res = $this->client->bulk($data);
-        if ($res['errors']) {
-            $this->error($res['errors']);
-            exit;
-        }
+        do {
+            $res = $this->client->bulk($data);
+            if ($res['errors']) {
+                $this->error($res['errors']);
+            } else {
+                break;
+            }
+        } while (true);
     }
 }

@@ -59,6 +59,13 @@ class Import extends Command
     protected $parser;
 
     /**
+     * File map for avoid re-counting all the files.
+     *
+     * @var array
+     */
+    protected $fileMap = [];
+
+    /**
      * Execute the console command.
      *
      * @return mixed
@@ -73,6 +80,7 @@ class Import extends Command
         $this->parser = new $parserClass;
 
         $this->info('Analysing ' . $path);
+        $this->analyse($path);
 
         $di = new \RecursiveDirectoryIterator($path);
         foreach (new \RecursiveIteratorIterator($di) as $filename => $file) {
@@ -97,8 +105,8 @@ class Import extends Command
             return;
         }
 
-        $lines = $this->countLines($filePath);
-        $this->comment('File contains ' . $lines . ' records.');
+        $lines = $this->fileMap[$filePath];
+        $this->comment('File contains ' . number_format($lines, 0, '', '.') . ' records.');
         $bar = $this->output->createProgressBar($lines);
         $bar->setFormat(' %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s% %memory:6s%');
 
@@ -159,6 +167,38 @@ class Import extends Command
                 break;
             }
         } while (true);
+    }
+
+    /**
+     * Analyse a path.
+     *
+     * @param string $path
+     * @return void
+     */
+    private function analyse(string $path)
+    {
+        $nonProcessable = 0;
+        $processable = 0;
+        $totalLines = 0;
+
+        $di = new \RecursiveDirectoryIterator($path);
+        foreach (new \RecursiveIteratorIterator($di) as $filename => $file) {
+            if ($file->getFilename() == '.' || $file->getFilename() == '..') {
+                continue;
+            }
+            if ($file->getExtension() == 'txt' || $file->getExtension() == 'csv') {
+                $processable++;
+                $lines = $this->countLines($filename);
+                $totalLines += $lines;
+                $this->fileMap[$filename] = $lines;
+            } else {
+                $nonProcessable++;
+            }
+        }
+
+        $this->comment('Non-processable files: ' . number_format($nonProcessable, 0, '', '.'));
+        $this->comment('Processable files: ' . number_format($processable, 0, '', '.'));
+        $this->comment('Total Lines: ' . number_format($totalLines, 0, '', '.'));
     }
 
     /**

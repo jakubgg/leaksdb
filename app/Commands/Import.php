@@ -91,45 +91,60 @@ class Import extends Command
             return;
         }
 
-        $total = 0;
         $handle = fopen($filePath, 'r');
-        if ($handle) {
-            $data = ['body' => []];
-            while (!feof($handle)) {
-
-                $line = fgets($handle);
-                if (!$line) {
-                    continue;
-                }
-
-                $res = $this->parser->processLine($line);
-                if (!$res) {
-                    $this->error('Line not processed' . $line);
-                    continue;
-                }
-
-                $res['dump'] = $this->name;
-
-                $data['body'][] = [
-                    'index' => [
-                        '_index' => self::INDEX,
-                        '_id' => md5(json_encode($data)),
-                    ]
-                ];
-                $data['body'][] = $res;
-
-                $total++;
-                if ($total % self::CHUNK == 0) {
-                    $this->insert($data);
-                    $this->line($total . ' records sent');
-                    $data['body'] = [];
-                }
-            }
-            fclose($handle);
+        if (!$handle) {
+            $this->error('Cannot open the file!');
+            return;
         }
+
+        $lines = $this->countLines($filePath);
+        $this->comment('File contains ' . $lines . ' records.');
+        $bar = $this->output->createProgressBar($lines);
+        $bar->setFormat(' %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s% %memory:6s%');
+
+        $bar->start();
+
+        $total = 0;
+        $data = ['body' => []];
+        while (!feof($handle)) {
+
+            $line = fgets($handle);
+            if (!$line) {
+                continue;
+            }
+
+            $processedLine = $this->parser->processLine($line);
+            if (!$processedLine) {
+                $this->error('Line not processed' . $line);
+                continue;
+            }
+
+            // Add the dump name
+            $processedLine['dump'] = $this->name;
+
+            // Prepare the ES request
+            $data['body'][] = [
+                'index' => [
+                    '_index' => self::INDEX,
+                    '_id' => md5(json_encode($processedLine)),
+                ]
+            ];
+            $data['body'][] = $processedLine;
+
+            $total++;
+            if ($total % self::CHUNK == 0) {
+                $this->insert($data);
+                $data['body'] = [];
+            }
+
+            $bar->advance();
+        }
+        fclose($handle);
 
         // Sent last data (< chunk)
         $this->insert($data);
+
+        $bar->finish();
 
         File::create(['path' => $filePath]);
     }
@@ -144,5 +159,22 @@ class Import extends Command
                 break;
             }
         } while (true);
+    }
+
+    /**
+     * Count the lines of a file.
+     *
+     * @param string $filePath
+     * @return int
+     */
+    private function countLines(string $filePath)
+    {
+        $handle = fopen($filePath, 'r');
+        $count = 0;
+        while (fgets($handle)) {
+            $count++;
+        }
+        fclose($handle);
+        return $count;
     }
 }

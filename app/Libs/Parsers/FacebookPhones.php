@@ -31,6 +31,17 @@ use Carbon\Carbon;
 39330277017:1625462848:Andrea:Simonelli:male:::Single:::andreasimonellincc@tiscali.it:12/28
 393248081080:100004849480877:Sohel:Hossain:male:Bergamo, Italy:Dhaka, Bangladesh:Single:*Jana ojana onuvuti*
 
+9377042163999:100035945963692:اسلامى معلومات:اسلامى معلومات:male:::::1/1/0001 12-00-00 AM::::True:True:7/26/2019 8-37-36 AM:1/1/0001 12-00-00 AM
+93770421608:100001926893655:Sayyed Ali Sajjad:Musavi:male:Kabul, Afghanistan:Kabul, Afghanistan:Engaged:IEC Independent Election Commission:1/1/0001 12-00-00 AM:::2014:True:True:7/26/2019 8-37-36 AM:1/1/0001 12-00-00 AM
+93770421567:100034897058314:امیر:الله:male:::::1/1/0001 12-00-00 AM::::True:True:7/26/2019 8-37-36 AM:1/1/0001 12-00-00 AM
+93770421541:100004003887363:Adam:Ahmadzai:male::Mohammad Agha, Lowgar, Afghanistan::Student:1/1/0001 12-00-00 AM::::True:True:7/26/2019 8-37-36 AM:1/1/0001 12-00-00 AM
+93770421519:100009017790231:Assadullah:Ramazani:male:Kabul, Afghanistan:Daykondi, Oruzgan, Afghanistan:Single:English Knowledge House:1/1/0001 12-00-00 AM::::True:True:7/26/2019 8-37-36 AM:1/1/0001 12-00-00 AM
+93770423638:100014369702352:Fahad:Khan:male:Kabul, Afghanistan:Kabul, Afghanistan:::1/1/0001 12-00-00 AM::::True:True:7/26/2019 8-37-36 AM:1/1/0001 12-00-00 AM
+93770424491:100033358564858:Badsha:Mashkoor:male:::::1/1/0001 12-00-00 AM::::True:True:7/26/2019 8-37-36 AM:1/1/0001 12-00-00 AM
+93770424314:100027576462182:Noor:Kamalzai:male:Kabul, Afghanistan:Kabul, Afghanistan::Facebook:1/1/0001 12-00-00 AM::::True:True:7/26/2019 8-37-36 AM:1/1/0001 12-00-00 AM
+93770424302:100001719228179:Fawad:Hematzada:male:Kuwait City:Cake Wardak, Vardak, Afghanistan:::1/1/0001 12-00-00 AM::::True:True:7/26/2019 8-37-36 AM:1/1/0001 12-00-00 AM
+93770424259:100009664531022:Šåłëęm:Åfğhåņ:male:Kabul, Afghanistan:Kabul, Afghanistan:::1/1/0001 12-00-00 AM::::True:True:7/26/2019 8-37-36 AM:1/1/0001 12-00-00 AM
+
 https://twitter.com/UnderTheBreach/status/1378314424239460352
 Phone number, Facebook ID, First Name, Last Name, Gender, Location, Past Location, Relationship Status, 
 Email Address, Account Creation Date, Relationship Status, Bio.
@@ -44,9 +55,9 @@ class FacebookPhones implements Parser
     {
 
         // Remove time from date (as it cointains : separator)
-        $line = preg_replace('/\s\d{2}:\d{2}:\d{2}\s([A|P]M)?/', '', $line);
+        $line = preg_replace('/\s\d{2}[:|-]\d{2}[:|-]\d{2}\s([A|P]M)?/', '', $line);
         $parts = explode(':', trim($line));
-        if (count($parts) != 12) {
+        if (count($parts) < 12) {
             return false;
         }
 
@@ -64,7 +75,11 @@ class FacebookPhones implements Parser
         }
 
         if ($parts[4]) {
-            $data['gender'] = $parts[4];
+            if ($parts[4] == 'male') {
+                $data['gender'] = 'M';
+            } elseif ($parts[4] == 'female') {
+                $data['gender'] = 'F';
+            }
         }
 
         if ($parts[5]) {

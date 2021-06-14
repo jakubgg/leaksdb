@@ -63,11 +63,7 @@ class PhoneHouse implements Parser
             $data['phone3'] = $res[10];
         }
         if ($res[12]) {
-            if ($res[12] == 'M') {
-                $data['gender'] = 'male';
-            } else {
-                $data['gender'] = 'female';
-            }
+            $data['gender'] = $res[12];
         }
         if ($res[14]) {
             $data['first_name'] = mb_convert_case(mb_strtolower($res[14]), MB_CASE_TITLE, "UTF-8");

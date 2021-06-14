@@ -136,7 +136,9 @@ class Import extends Command
 
             $processedLine = $this->parser->processLine($line);
             if (!$processedLine) {
-                $this->error('Line not processed: ' . $line);
+                $this->line('');
+                $this->error('Line not processed');
+                echo $line . PHP_EOL;
                 continue;
             }
 

@@ -86,6 +86,8 @@ class Import extends Command
         foreach (new \RecursiveIteratorIterator($di) as $filename => $file) {
             if ($file->getExtension() == 'txt' || $file->getExtension() == 'csv') {
                 $this->processFile($filename);
+            } else {
+                $this->error('File ignored: ' . $filename);
             }
         }
     }
@@ -95,7 +97,7 @@ class Import extends Command
         $this->info('Reading ' . $filePath);
 
         if (File::where('path', $filePath)->exists()) {
-            $this->line('Path already processed!');
+            $this->line('File already processed!');
             return;
         }
 
@@ -140,12 +142,13 @@ class Import extends Command
             $data['body'][] = $processedLine;
 
             $total++;
+
+            $bar->advance();
+
             if ($total % self::CHUNK == 0) {
                 $this->insert($data);
                 $data['body'] = [];
             }
-
-            $bar->advance();
         }
         fclose($handle);
 
@@ -153,6 +156,9 @@ class Import extends Command
         $this->insert($data);
 
         $bar->finish();
+        $this->line('');
+
+        $this->comment('Total non-processed lines: ' . ($lines - $total));
 
         File::create(['path' => $filePath]);
     }

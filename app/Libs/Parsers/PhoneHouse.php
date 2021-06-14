@@ -27,6 +27,7 @@ use App\Libs\Contracts\Parser;
 [23] => POSTAL_CODE
 [44] => NATIONALITY_CODE
 [45] => NATIONALITY_NAME
+
 */
 
 class PhoneHouse implements Parser
@@ -34,6 +35,17 @@ class PhoneHouse implements Parser
     public function processLine(string $line)
     {
         $res = str_getcsv($line);
+
+        if (count($res) == 67) {
+            return $this->parseCostumerData($res);
+        } elseif (count($res) == 7) {
+            return $this->parsePolicyReceipts($res);
+        }
+    }
+
+    private function parseCostumerData(array $res)
+    {
+        $data = [];
 
         if ($res[1]) {
             $data['id'] = $res[1];
@@ -88,6 +100,45 @@ class PhoneHouse implements Parser
         }
         if ($res[44]) {
             $data['nationality_code'] = $res[44];
+        }
+
+        return $data;
+    }
+
+    /*
+    [0] => 446
+    [1] => 11920380D
+    [2] => ROBERTO
+    [3] => ALONSO
+    [4] => CASTELLANOS
+    [5] => AVIVA  VIDA  Y PENSIONES S.A. DE SEGUROS
+    [6] => ES7600814356740001007306
+    */
+    private function parsePolicyReceipts(array $res)
+    {
+        $data = [];
+
+        if ($res[1]) {
+            $data['id'] = $res[1];
+        }
+        if ($res[2]) {
+            $data['first_name'] = mb_convert_case(mb_strtolower($res[2]), MB_CASE_TITLE, "UTF-8");
+        }
+        $lastname = [];
+        if ($res[3]) {
+            $lastname[] = $res[3];
+        }
+        if ($res[4]) {
+            $lastname[] = $res[4];
+        }
+        if (!empty($lastname)) {
+            $data['last_name'] = mb_convert_case(mb_strtolower(implode(' ', $lastname)), MB_CASE_TITLE, "UTF-8");
+        }
+        if ($res[5]) {
+            $data['location'] = mb_convert_case(mb_strtolower($res[5]), MB_CASE_TITLE, "UTF-8");
+        }
+        if (($res[6])) {
+            $data['iban'] = $res[6];
         }
 
         return $data;

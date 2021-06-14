@@ -219,12 +219,6 @@ class Import extends Command
      */
     private function countLines(string $filePath)
     {
-        $handle = fopen($filePath, 'r');
-        $count = 0;
-        while (fgets($handle)) {
-            $count++;
-        }
-        fclose($handle);
-        return $count;
+        return intval(exec("wc -l '$filePath'"));
     }
 }

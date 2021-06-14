@@ -84,6 +84,9 @@ class Import extends Command
 
         $di = new \RecursiveDirectoryIterator($path);
         foreach (new \RecursiveIteratorIterator($di) as $filename => $file) {
+            if ($file->getFilename() == '.' || $file->getFilename() == '..') {
+                continue;
+            }
             if ($file->getExtension() == 'txt' || $file->getExtension() == 'csv') {
                 $this->processFile($filename);
             } else {

@@ -128,7 +128,7 @@ class Import extends Command
 
             $processedLine = $this->parser->processLine($line);
             if (!$processedLine) {
-                $this->error('Line not processed' . $line);
+                $this->error('Line not processed: ' . $line);
                 continue;
             }
 
@@ -171,7 +171,8 @@ class Import extends Command
         do {
             $res = $this->client->bulk($data);
             if ($res['errors']) {
-                $this->error($res['errors']);
+                $this->error('ES Error');
+                print_r($res);
             } else {
                 break;
             }

@@ -52,9 +52,12 @@ abstract class Parser
      */
     public function cleanLine(string $line)
     {
-        $line = utf8_encode($line);
-        // Remove weird invisible chars
-        return preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/u', '', $line);
+        $line = mb_convert_encoding($line, "UTF-8");
+        // $line = utf8_decode($line);
+        $line = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/u', '', $line);
+        // $line = utf8_encode($line);
+
+        return $line;
     }
 
     /**

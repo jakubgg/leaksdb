@@ -2,7 +2,8 @@
 
 namespace App\Libs\Parsers;
 
-use App\Libs\Contracts\Parser;
+use App\Libs\Contracts\Abstracts\Parser;
+use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
 use Carbon\Carbon;
 
 /*
@@ -49,18 +50,146 @@ Birthdate
 
 */
 
-class FacebookPhones implements Parser
+class FacebookPhones extends Parser implements ParserInterface
 {
+    /**
+     * {@inheritdoc }
+     */
+    protected function init()
+    {
+        $this->determineSeparator();
+    }
+
+    /**
+     * Determine the fields separator.
+     * 
+     * Sometimes , is used, some others :
+     */
+    private function determineSeparator()
+    {
+        // Read the first 3 lines
+        $lines = '';
+        $handle = fopen($this->getFilePath(), 'rb');
+        for ($i = 0; $i < 3; $i++) {
+            $lines .= fgets($handle);
+        }
+        fclose($handle);
+
+        if (substr_count($lines, ':') > substr_count($lines, ',')) {
+            $this->separator = ':';
+        } else {
+            $this->separator = ',';
+        }
+    }
+
+    /**
+     * {@inheritdoc }
+     */
     public function processLine(string $line)
     {
+        $line = $this->cleanLine($line);
 
         // Remove time from date (as it cointains : separator)
         $line = preg_replace('/\s\d{2}[:|-]\d{2}[:|-]\d{2}\s([A|P]M)?/', '', $line);
-        $parts = explode(':', trim($line));
+
+        $parts = explode($this->separator, trim($line));
+        if (!count($parts)) {
+            return false;
+        }
+
         if (count($parts) < 12) {
             return false;
         }
 
+        $parts = array_map('trim', $parts);
+        if ($this->separator == ',') {
+            $parts[0] = preg_replace("/[^\+0-9]/", "", $parts[0]);
+            if (str_starts_with($parts[3], '+')) {
+                return $this->processComa($parts);
+            }
+        }
+
+        if ($this->separator == ':') {
+            return $this->processNormal($parts);
+        }
+    }
+
+    /*
+    100000283768362,,,+97433989985,,10/28,A,Amer,male,https://www.facebook.com/ahmadamer09,,ahmadamer09,A M Amer,,,,Cairo  Egypt,Doha,,ahmadamer09@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,,,,,,,
+    100008312311436,,,+97450149585,,,Aashiq,Khan,male,https://www.facebook.com/aashiq.khan.31945,,aashiq.khan.31945,Aashiq Khan,,,,,Doha,Qatar University,aashiq.khan.31945@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,,,,,,,
+    523701054,,,+97455011166,,,Adnan,Mounajed,male,https://www.facebook.com/adnan.mounajed,,adnan.mounajed,Adnan Mounajed,,Bonne Maniere,CEO,,,Makassed - Al Horj,adnan.mounajed@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,,,,,,,
+    10000003379846^C5,,,+97433748308,,,Abdullah,Alkuwari,male,https://www.facebook.com/abdullah.alkuwari.507,,abdullah.alkuwari.507,Abdullah Alkuwari,,International School of Choueifat,Estudante,Doha,Doha,International School of Choueifat,abdullah.alkuwari.507@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,,,,,,,
+    100007905886900,,,+97450788144,,,Abdulla Al,Mamun,male,https://www.facebook.com/100007905886900,,,Abdulla Al Mamun,,Student,?stemen,Cox's Bazar  Bangladesh,Cox's Bazar  Bangladesh,Ukhiya Govt. High School - UGHS,100007905886900@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,Single,,,,,,,,,
+    100004836301448,,,+97455128136,,,Abdulla Al,Mamun,male,https://www.facebook.com/abdullaal.mamun.3363334,,abdullaal.mamun.3363334,Abdulla Al Mamun,,privet service,allrounder,Feni  Barisl  Bangladesh,Doha,Shaheen Academy School & College Feni,abdullaal.mamun.3363334@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,,,,,,,
+    100014233666120,,,+97450520675,,,Abdulla Hil,Maruf Molla,male,https://www.facebook.com/abdullahil.marufmolla.58,,abdullahil.marufmolla.58,Abdulla Hil Maruf Molla,,HVAC Technician,,Diamond Harbour,Diamond Harbour,Fakir Chand College,abdullahil.marufmolla.58@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,,,,,,,
+    100001620759290,,,+97455133157,,,Aazath,Mohamed,male,https://www.facebook.com/Aazath,,Aazath,Aazath Mohamed,No thing 2 say about me but 1 day ?,classical palace interior design doha  qatar,Systems Engineer,Kaduwela  Sri Lanka,Doha,PLMCC,Aazath@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,Single,,,,,,,,,
+    ??100011903084137,,,+97433912145,,,z?0000000000000000000000000z? z?0000000000000000000000000z?,z?0000000000000000000000000z? z?0000000000000000000000000z?,male,https://www.facebook.com/ghazok.baloch,,ghazok.baloch,z?0000000000000000000000000z? z?0000000000000000000000000z? z?0000000000000000000000000z? z?0000000000000000000000000z?,,,,,,,ghazok.baloch@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,,,,,,,
+    */
+    private function processComa(array $parts)
+    {
+        $data = [
+            'fb_id' => $parts[0],
+            'phone' => $parts[3],
+        ];
+
+        if (isset($parts[6]) && $parts[6]) {
+            $data['first_name'] = $parts[6];
+        }
+
+        if (isset($parts[3]) && $parts[3]) {
+            $data['last_name'] = $parts[7];
+        }
+
+        // Strange chars
+        if (isset($parts[8]) && $parts[8]) {
+            if (strstr($parts[8], 'male')) {
+                $data['gender'] = 'M';
+            } elseif (strstr($parts[8], 'female')) {
+                $data['gender'] = 'F';
+            }
+        }
+
+        if (isset($parts[13]) && $parts[13]) {
+            $data['bio'] = $parts[13];
+        }
+
+        if (isset($parts[14]) && $parts[14]) {
+            $data['work'] = $parts[14];
+        }
+
+        if (isset($parts[15]) && $parts[15]) {
+            $data['work_role'] = $parts[15];
+        }
+
+        if (isset($parts[16]) && $parts[16]) {
+            $data['location'] = $parts[16];
+        }
+
+        if (isset($parts[17]) && $parts[17]) {
+            $data['past_location'] = $parts[17];
+        }
+
+        if (isset($parts[18]) && $parts[18]) {
+            $data['school'] = $parts[18];
+        }
+
+        if (isset($parts[19]) && $parts[19]) {
+            $data['email'] = $parts[19];
+        }
+
+        if (isset($parts[25]) && $parts[25]) {
+            $data['relationship_status'] = $parts[25];
+        }
+
+        if (!$data['fb_id']) {
+            return false;
+        }
+
+        return $data;
+    }
+
+    private function processNormal(array $parts)
+    {
         $data = [
             'phone' => $parts[0],
             'fb_id' => $parts[1],
@@ -114,6 +243,10 @@ class FacebookPhones implements Parser
             if (preg_match('/(\d{2})?\/\d{2}\/\d{4}/', $parts[11])) {
                 $data['birthdate'] = Carbon::createFromFormat('m/d/Y', $parts[11])->format('Y-m-d');
             }
+        }
+
+        if (!$data['fb_id']) {
+            return false;
         }
 
         return $data;

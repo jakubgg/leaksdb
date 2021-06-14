@@ -2,7 +2,8 @@
 
 namespace App\Libs\Parsers;
 
-use App\Libs\Contracts\Parser;
+use App\Libs\Contracts\Abstracts\Parser;
+use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
 
 /*
 
@@ -30,8 +31,11 @@ use App\Libs\Contracts\Parser;
 
 */
 
-class PhoneHouse implements Parser
+class FacebookPhones extends Parser implements ParserInterface
 {
+    /**
+     * {@inheritdoc }
+     */
     public function processLine(string $line)
     {
         $res = str_getcsv($line);

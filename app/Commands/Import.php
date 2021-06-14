@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Libs\Contracts\Interfaces\Parser;
 use App\Models\File;
 use LaravelZero\Framework\Commands\Command;
 use Elasticsearch\ClientBuilder;
@@ -13,7 +14,7 @@ class Import extends Command
      *
      * @var string
      */
-    protected $signature = 'import {name} {path} {parser} {--analize}';
+    protected $signature = 'import {name} {path} {parser}';
 
     /**
      * The description of the command.
@@ -52,20 +53,6 @@ class Import extends Command
     protected $name;
 
     /**
-     * Parser class
-     *
-     * @var App\Libs\Contracts\Parser
-     */
-    protected $parser;
-
-    /**
-     * File map for avoid re-counting all the files.
-     *
-     * @var array
-     */
-    protected $fileMap = [];
-
-    /**
      * Execute the console command.
      *
      * @return mixed
@@ -76,29 +63,27 @@ class Import extends Command
 
         $path = $this->argument('path');
         $this->name = $this->argument('name');
-        $parserClass = 'App\\Libs\\Parsers\\' . $this->argument('parser');
-        $this->parser = new $parserClass;
-
-        if ($this->option('analize')) {
-            $this->info('Analysing ' . $path);
-            $this->analyze($path);
-        }
+        $parserClassName = 'App\\Libs\\Parsers\\' . $this->argument('parser');
 
         $di = new \RecursiveDirectoryIterator($path);
-        foreach (new \RecursiveIteratorIterator($di) as $filename => $file) {
+        foreach (new \RecursiveIteratorIterator($di) as $filePath => $file) {
             if ($file->getFilename() == '.' || $file->getFilename() == '..') {
                 continue;
             }
-            if ($file->getExtension() == 'txt' || $file->getExtension() == 'csv') {
-                $this->processFile($filename);
+
+            $parser = new $parserClassName($filePath);
+
+            if ($parser->canProcessFile()) {
+                $this->processFile($parser);
             } else {
-                $this->error('File ignored: ' . $filename);
+                $this->error('File ignored: ' . $filePath);
             }
         }
     }
 
-    private function processFile($filePath)
+    private function processFile(Parser $parser)
     {
+        $filePath = $parser->getFilePath();
         $this->info('Reading ' . $filePath);
 
         if (File::where('path', $filePath)->exists()) {
@@ -112,11 +97,7 @@ class Import extends Command
             return;
         }
 
-        if (isset($this->fileMap[$filePath])) {
-            $lines = $this->fileMap[$filePath];
-        } else {
-            $lines = $this->countLines($filePath);
-        }
+        $lines = $parser->countLines();
         $this->comment('File contains ' . number_format($lines, 0, '', '.') . ' records.');
         $bar = $this->output->createProgressBar($lines);
         $bar->setFormat(' %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s% %memory:6s%');
@@ -134,7 +115,7 @@ class Import extends Command
                 continue;
             }
 
-            $processedLine = $this->parser->processLine($line);
+            $processedLine = $parser->processLine($line);
             if (!$processedLine) {
                 $this->line('');
                 $this->error('Line not processed');
@@ -185,55 +166,5 @@ class Import extends Command
                 break;
             }
         } while (true);
-    }
-
-    /**
-     * Analyze a path.
-     *
-     * @param string $path
-     * @return void
-     */
-    private function analyze(string $path)
-    {
-        $nonProcessable = 0;
-        $processable = 0;
-        $totalLines = 0;
-
-        $di = new \RecursiveDirectoryIterator($path);
-        foreach (new \RecursiveIteratorIterator($di) as $filename => $file) {
-            if ($file->getFilename() == '.' || $file->getFilename() == '..') {
-                continue;
-            }
-            if ($file->getExtension() == 'txt' || $file->getExtension() == 'csv') {
-                $processable++;
-                $lines = $this->countLines($filename);
-                $totalLines += $lines;
-                $this->fileMap[$filename] = $lines;
-            } else {
-                $nonProcessable++;
-            }
-        }
-
-        $this->comment('Non-processable files: ' . number_format($nonProcessable, 0, '', '.'));
-        $this->comment('Processable files: ' . number_format($processable, 0, '', '.'));
-        $this->comment('Total Lines: ' . number_format($totalLines, 0, '', '.'));
-    }
-
-    /**
-     * Count the lines of a file.
-     *
-     * @param string $filePath
-     * @return int
-     */
-    private function countLines(string $filePath)
-    {
-        // return intval(exec("wc -l '$filePath'"));
-        $handle = fopen($filePath, 'r');
-        $count = 0;
-        while (fgets($handle)) {
-            $count++;
-        }
-        fclose($handle);
-        return $count;
     }
 }

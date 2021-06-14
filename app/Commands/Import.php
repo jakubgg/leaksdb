@@ -13,7 +13,7 @@ class Import extends Command
      *
      * @var string
      */
-    protected $signature = 'import {name} {path} {parser}';
+    protected $signature = 'import {name} {path} {parser} {--analize}';
 
     /**
      * The description of the command.
@@ -79,8 +79,10 @@ class Import extends Command
         $parserClass = 'App\\Libs\\Parsers\\' . $this->argument('parser');
         $this->parser = new $parserClass;
 
-        $this->info('Analysing ' . $path);
-        $this->analyse($path);
+        if ($this->option('analize')) {
+            $this->info('Analysing ' . $path);
+            $this->analyze($path);
+        }
 
         $di = new \RecursiveDirectoryIterator($path);
         foreach (new \RecursiveIteratorIterator($di) as $filename => $file) {
@@ -110,7 +112,11 @@ class Import extends Command
             return;
         }
 
-        $lines = $this->fileMap[$filePath];
+        if (isset($this->fileMap[$filePath])) {
+            $lines = $this->fileMap[$filePath];
+        } else {
+            $lines = $this->countLines($filePath);
+        }
         $this->comment('File contains ' . number_format($lines, 0, '', '.') . ' records.');
         $bar = $this->output->createProgressBar($lines);
         $bar->setFormat(' %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s% %memory:6s%');
@@ -120,6 +126,8 @@ class Import extends Command
         $total = 0;
         $data = ['body' => []];
         while (!feof($handle)) {
+
+            $bar->advance();
 
             $line = fgets($handle);
             if (!$line) {
@@ -145,8 +153,6 @@ class Import extends Command
             $data['body'][] = $processedLine;
 
             $total++;
-
-            $bar->advance();
 
             if ($total % self::CHUNK == 0) {
                 $this->insert($data);
@@ -180,12 +186,12 @@ class Import extends Command
     }
 
     /**
-     * Analyse a path.
+     * Analyze a path.
      *
      * @param string $path
      * @return void
      */
-    private function analyse(string $path)
+    private function analyze(string $path)
     {
         $nonProcessable = 0;
         $processable = 0;
@@ -219,6 +225,13 @@ class Import extends Command
      */
     private function countLines(string $filePath)
     {
-        return intval(exec("wc -l '$filePath'"));
+        // return intval(exec("wc -l '$filePath'"));
+        $handle = fopen($filePath, 'r');
+        $count = 0;
+        while (fgets($handle)) {
+            $count++;
+        }
+        fclose($handle);
+        return $count;
     }
 }

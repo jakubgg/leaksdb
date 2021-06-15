@@ -55,15 +55,30 @@ class FacebookPhones extends Parser implements ParserInterface
     /**
      * {@inheritdoc }
      */
+    protected $extensions = ['txt'];
+
+    /**
+     * Country (based on the file name)
+     *
+     * @var string
+     */
+    protected $country;
+
+    /**
+     * {@inheritdoc }
+     */
     protected function init()
     {
-        $this->determineSeparator();
+        $this->separator = $this->determineSeparator();
+        $this->country = $this->getCountryByFileName();
     }
 
     /**
      * Determine the fields separator.
      * 
      * Sometimes , is used, some others :
+     * 
+     * @return string
      */
     private function determineSeparator()
     {
@@ -76,10 +91,25 @@ class FacebookPhones extends Parser implements ParserInterface
         fclose($handle);
 
         if (substr_count($lines, ':') > substr_count($lines, ',')) {
-            $this->separator = ':';
+            return ':';
         } else {
-            $this->separator = ',';
+            return ',';
         }
+    }
+
+    /**
+     * Get the country name based on file name.
+     *
+     * @return string
+     */
+    private function getCountryByFileName()
+    {
+        $name = basename($this->getFilePath(), '.txt');
+        $name = preg_replace('/[0-9]+/', '', $name);
+        $name = preg_replace('/\s+/', ' ', $name);
+        $name = trim($name);
+
+        return $name;
     }
 
     /**
@@ -105,13 +135,77 @@ class FacebookPhones extends Parser implements ParserInterface
         if ($this->separator == ',') {
             $parts[0] = preg_replace("/[^\+0-9]/", "", $parts[0]);
             if (str_starts_with($parts[3], '+')) {
-                return $this->processComa($parts);
+                $data = $this->processComa1($parts);
+            } elseif (str_starts_with($parts[1], '+')) {
+                $data = $this->processComa2($parts);
             }
+        } elseif ($this->separator == ':') {
+            $data = $this->processNormal($parts);
         }
 
-        if ($this->separator == ':') {
-            return $this->processNormal($parts);
+        if (isset($data)) {
+            $data['country'] = $this->country;
+
+            return $data;
         }
+
+        return false;
+    }
+
+    /*
+    // Algeria
+    id,phone,first_name,last_name,email,birthday,gender,locale,hometown,location,link
+    100027836001192,+213555080106,Nã,Ssïm,None,None,male,fr_FR,None,Location*,None,link*,https://www.facebook.com/profile.php?id=100027836001192,
+    100027461777769,+213557914999,Abdou,Jilat,None,None,male,fr_FR,None,Location*,None,link*,https://www.facebook.com/abdou.jilat,,,,,,,,,,,
+    100005156027447,+213557914986,Imad,Bellaouel,None,None,male,fr_FR,Hammam Sousse,Location*,Annaba, Algeria,link*,https://www.facebook.com/profile.php?id=100005156027447,,,,,,,,,,
+    1132055813,+213663682076,Rebai,Hicham,None,February 15, 1989,male,fr_FR,None,Location*,None,link*,https://www.facebook.com/rodre%  
+    */
+    private function processComa2(array $parts)
+    {
+        $data = [
+            'fb_id' => $parts[0],
+            'phone' => $parts[1],
+        ];
+
+        if ($parts[2]) {
+            $data['first_name'] = $parts[2];
+        }
+
+        if ($parts[3]) {
+            $data['last_name'] = $parts[3];
+        }
+
+        if ($parts[4] && $parts[4] != 'None') {
+            $data['email'] = $parts[4];
+        }
+
+        if ($parts[5] && $parts[5] != 'None') {
+            $data['birthdate'] = date('Y-m-d', strtotime($parts[5]));
+        }
+
+        if ($parts[6] == 'male') {
+            $data['gender'] = 'M';
+        } elseif ($parts[6] == 'female') {
+            $data['gender'] = 'F';
+        }
+
+        if (isset($parts[7]) && $parts[7]) {
+            $data['lang'] = $parts[7];
+        }
+
+        if (isset($parts[8]) && $parts[8]) {
+            $data['hometown'] = $parts[8];
+        }
+
+        if (isset($parts[10]) && $parts[10]) {
+            $data['location'] = $parts[10];
+        }
+
+        if (!$data['fb_id']) {
+            return false;
+        }
+
+        return $data;
     }
 
     /*
@@ -125,7 +219,7 @@ class FacebookPhones extends Parser implements ParserInterface
     100001620759290,,,+97455133157,,,Aazath,Mohamed,male,https://www.facebook.com/Aazath,,Aazath,Aazath Mohamed,No thing 2 say about me but 1 day ?,classical palace interior design doha  qatar,Systems Engineer,Kaduwela  Sri Lanka,Doha,PLMCC,Aazath@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,Single,,,,,,,,,
     ??100011903084137,,,+97433912145,,,z?0000000000000000000000000z? z?0000000000000000000000000z?,z?0000000000000000000000000z? z?0000000000000000000000000z?,male,https://www.facebook.com/ghazok.baloch,,ghazok.baloch,z?0000000000000000000000000z? z?0000000000000000000000000z? z?0000000000000000000000000z? z?0000000000000000000000000z?,,,,,,,ghazok.baloch@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,,,,,,,
     */
-    private function processComa(array $parts)
+    private function processComa1(array $parts)
     {
         $data = [
             'fb_id' => $parts[0],
@@ -136,17 +230,14 @@ class FacebookPhones extends Parser implements ParserInterface
             $data['first_name'] = $parts[6];
         }
 
-        if (isset($parts[3]) && $parts[3]) {
+        if (isset($parts[7]) && $parts[7]) {
             $data['last_name'] = $parts[7];
         }
 
-        // Strange chars
-        if (isset($parts[8]) && $parts[8]) {
-            if (strstr($parts[8], 'male')) {
-                $data['gender'] = 'M';
-            } elseif (strstr($parts[8], 'female')) {
-                $data['gender'] = 'F';
-            }
+        if ($parts[8] == 'male') {
+            $data['gender'] = 'M';
+        } elseif ($parts[8] == 'female') {
+            $data['gender'] = 'F';
         }
 
         if (isset($parts[13]) && $parts[13]) {

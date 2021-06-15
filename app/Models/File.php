@@ -22,7 +22,7 @@ class File extends Model
      *
      * @var array
      */
-    protected $fillable = ['path', 'date'];
+    protected $fillable = ['path', 'lines', 'processed', 'date'];
 
     /**
      * The attributes that should be cast.

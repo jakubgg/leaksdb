@@ -152,7 +152,11 @@ class Import extends Command
 
         $this->comment('Total non-processed lines: ' . ($lines - $total));
 
-        File::create(['path' => $filePath]);
+        File::create([
+            'path' => $filePath,
+            'lines' => $lines,
+            'processed' => $total,
+        ]);
     }
 
     private function insert($data)

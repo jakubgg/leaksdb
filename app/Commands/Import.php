@@ -14,7 +14,7 @@ class Import extends Command
      *
      * @var string
      */
-    protected $signature = 'import {name} {path} {parser}';
+    protected $signature = 'import {name} {path} {parser} {--delete}';
 
     /**
      * The description of the command.
@@ -63,6 +63,11 @@ class Import extends Command
 
         $path = $this->argument('path');
         $this->name = $this->argument('name');
+
+        if ($this->option('delete')) {
+            $this->delete();
+        }
+
         $parserClassName = 'App\\Libs\\Parsers\\' . $this->argument('parser');
 
         $di = new \RecursiveDirectoryIterator($path);
@@ -180,5 +185,12 @@ class Import extends Command
                 break;
             }
         } while (true);
+    }
+
+    private function delete()
+    {
+        $this->client->indices()->delete([
+            'index' => self::INDEX,
+        ]);
     }
 }

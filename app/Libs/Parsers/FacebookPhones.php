@@ -123,6 +123,7 @@ Verified:
 - USA 05
 - India 2
 - Peru 1
+- tunisia
 
 Verified, but non-eng relationship:
 - Burundi
@@ -139,7 +140,6 @@ Possible missing fields:
 - Alegria: Email, Rel, Work, School, Bio, Work role...
 
 Issues:
-- tunisia: Some fields are messy
 - Iraq 3: Messy
 - Iraq 1: Messy
 - Iraq 6: Messy
@@ -262,6 +262,8 @@ class FacebookPhones extends Parser implements ParserInterface
      */
     public function processLine(string $line)
     {
+        $originalLine = $line;
+
         $line = $this->cleanLine($line);
 
         // Remove time from date (as it might cointain :-, separators :/)
@@ -283,8 +285,8 @@ class FacebookPhones extends Parser implements ParserInterface
 
         // Determine the processor
         if (isset($parts[3]) && str_starts_with($parts[3], '+')) {
-            if (isset($parts[2]) && str_starts_with($parts[2], '@')) {
-                if (isset($parts[6]) && str_starts_with($parts[6], '/')) {
+            if (isset($parts[2]) && strstr($parts[2], '@')) {
+                if (isset($parts[6]) && strstr($parts[6], '/')) {
                     $data = $this->processComa5($parts);
                 } else {
                     $data = $this->processComa4($parts);
@@ -293,18 +295,35 @@ class FacebookPhones extends Parser implements ParserInterface
                 $data = $this->processComa1($parts);
             }
         } elseif (isset($parts[1]) && str_starts_with($parts[1], '+')) {
-            $data = $this->processComa2($parts);
-        } elseif (isset($parts[5]) && strstr($parts[5], 'facebook.com')) {
-            $data = $this->processComa3($parts);
+
+            if (isset($parts[5]) && strstr($parts[5], 'facebook.com')) {
+                // 100009459103379,+9647511390547,Abdulkerim,Ağırman,male,https://www.facebook.com/100009459103379,Abdulkerim Ağırman,,Mardin,100009459103379@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,
+                if (isset($parts[9]) && strstr($parts[9], '@')) {
+                    $data = $this->processComa6($parts);
+                } elseif (isset($parts[11]) && strstr($parts[11], '@')) {
+                    $data = $this->processComa3($parts);
+                }
+                // 100000749751596,+9647722569463,Abdulla,Altemimi,male,https://www.facebook.com/abdulla.altemimi.5,,abdulla.altemimi.5,Abdulla Altemimi,,Iraqi ministry of defence,Iraqi Defense Ministry,Karradah  Baghdad  Iraq,,الكلية العسكرية الثالثه / قلاجولان,abdulla.altemimi.5@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,
+                // 100001781785609,+9647805727945,Abdul-kareem,Taban,male,https://www.facebook.com/abdulkareem.taban,,abdulkareem.taban,Abdul-kareem Taban,,Basrah  Al Basrah  Iraq,Al Basrah  Al Basrah  Iraq,St. George's High School,abdulkareem.taban@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,
+                elseif (isset($parts[13]) && strstr($parts[13], '@')) {
+                    $data = $this->processComa7($parts);
+                } else {
+                }
+            } elseif (isset($parts[7]) && strstr($parts[7], 'facebook.com')) {
+                // 
+            } else {
+                $data = $this->processComa2($parts);
+            }
         } else {
             $data = $this->processGeneric($parts);
         }
 
         if (isset($data)) {
-            if (!isset($data['fb_id']) || !$data['fb_id']) {
+            if (!isset($data['fb_id']) || !$data['fb_id'] || !is_numeric($data['fb_id'])) {
                 return false;
             }
             $data['country'] = $this->country;
+            $data['record'] = $originalLine;
 
             return $data;
         }
@@ -371,8 +390,11 @@ class FacebookPhones extends Parser implements ParserInterface
     }
 
     /*
-    100004642566507,,ahmd17175@rocketmail.com,+9647706093795,احمد,العراقي,male,https://www.facebook.com/100004642566507,العراقي العراقي احمد,,اعمال حره,,Baghdad  Iraq,Baghdad  Iraq,اعدادية المصطفى,100004642566507@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,Single,,,
-    100002501115733,,i_m_d_2006@yahoo.com,+9647706092806,احمد,الكناني,male,https://www.facebook.com/100002501115733,احمد طارق الكناني,,Baghdad  Iraq,Baghdad  Iraq,,100002501115733@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,
+    Full Name on 10
+	100023791097366,,muhammadaljboury3.6@gmail.com,+9647511425133,Abbas,Aliraqe,male,https://www.facebook.com/mohamed.algbore.35,,mohamed.algbore.35,Abbas Aliraqe,,Mosul  Iraq,Mosul  Iraq,جامعة الموصل,mohamed.algbore.35@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,
+    Full Name on 8
+    100022161249130,,4g6b8z@gmail.com,+9647804277063,Abbas,Realy,male,https://www.facebook.com/100022161249130,Abbas Al Realy,,,100022161249130@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,
+	100004457101264,,lion_150@yahoo.com,+9647715179948,Abbas,AL-Majmaay,male,https://www.facebook.com/100004457101264,Abbas AL-Majmaay,,جامعة بغداد,100004457101264@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,
     */
     private function processComa4(array $parts)
     {
@@ -403,34 +425,37 @@ class FacebookPhones extends Parser implements ParserInterface
         if (isset($parts[6])) {
             if ($parts[6] == 'male') {
                 $data['gender'] = 'M';
-            } elseif ($parts[4] == 'female') {
+            } elseif ($parts[6] == 'female') {
                 $data['gender'] = 'F';
             }
         }
 
-        if (isset($parts[10]) && $parts[10]) {
-            $data['location'] = $parts[10];
+        // 10: Full name
+        if (isset($parts[10]) && $parts[10] && isset($data['first_name']) && isset($data['last_name']) && $parts[10] == $data['first_name'] . ' ' . $data['last_name']) {
+            if (isset($parts[12]) && $parts[12]) {
+                $data['location'] = $parts[12];
+            }
+
+            if (isset($parts[13]) && $parts[13]) {
+                $data['hometown'] = $parts[13];
+            }
         }
 
-        if (isset($parts[11]) && $parts[11]) {
-            $data['hometown'] = $parts[11];
-        }
-
-        if (isset($parts[19])) {
-            $data['relationship_status'] = $parts[19];
+        // Pending confirmation
+        if (isset($parts[18])) {
+            // $data['relationship_status'] = $parts[18];
         }
 
         return $data;
     }
 
     /*
-    100024297620720,+9647807440886,احمد,دعام,male,https://www.facebook.com/100024297620720,احمد دعام,,,100024297620720@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,
-    100015147180676,+9647807440910,احمد,الكربلائي,male,https://www.facebook.com/100015147180676,احمد الكربلائي,,,100015147180676@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,
-    100024787162768,+9647807441168,احمد,الجميلي,male,https://www.facebook.com/100024787162768,احمد الجميلي,,,100024787162768@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,
-    100000633520831,+9647706088983,احمد,الهلالي,,https://www.facebook.com/ahmed.nije.1,,ahmed.nije.1,احمد الهلالي,,Baghdad  Iraq,Baghdad  Iraq,University of Baghdad,ahmed.nije.1@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,
-    100017696655979,+9647706020802,احمد,ابو حسام,male,https://www.facebook.com/100017696655979,ابو حسام احمد,,Baghdad  Iraq,Irbil  Iraq,,100017696655979@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,
-    100008568523802,+9647706020030,احمد,الباوي,male,https://www.facebook.com/100008568523802,احمد الباوي,,Baghdad  Iraq,Baghdad  Iraq,,100008568523802@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,
-    100005717779395,+9647706072648,احمد,شاكر,male,https://www.facebook.com/100005717779395,احمد شاكر,اذادعتك قدرتك على ظلم الناس فتذكر قدرة الله عليك,Self-Employed,تاجر ملابس,,Baghdad  Iraq,Global United School - GUS,100005717779395@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,Separated,,,
+    Iraq1
+    100010026109277,+9647817891264,'ۦ,مہۧزآآجہۧي 'ۦ، 'ۦ،,male,https://www.facebook.com/100010026109277,'ۦ مہۧزآآجہۧي 'ۦ، 'ۦ،,,موظف حکومي,كاسب اعمال حرة,,Baghdad  Iraq,,100010026109277@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,
+    100025431331913,+9647815698564,"ۦٰۙۦٰۙ,ﭴٰ۫۬ﹻ۬ۆٰ۫۬رﻱٰٰ۫۬۫۬ۦٰۙۦٰۙ,female,https://www.facebook.com/100025431331913,"ۦٰۙۦٰۙ ﭴٰ۫۬ﹻ۬ۆٰ۫۬رﻱٰٰ۫۬۫۬ۦٰۙۦٰۙ,,وانته شكو حاشر نفسك,,Baghdad  Iraq,Baghdad  Iraq,الجامعة المستنصرية,100025431331913@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,
+    100009837197431,+9647817884898,"ۦٰٖٛۦ,هہٰٰٰۥﹻۥﹻۙﹻٰ۬ۛۛتلرﹻ,male,https://www.facebook.com/100009837197431,هہٰٰٰۥﹻۥﹻۙﹻٰ۬ۛۛتلرﹻ ۦٰٖٛۦ,,كلام فى الحب,نوم وبس�,An Nasiriyah  Iraq,An Nasiriyah  Iraq,,100009837197431@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,In an open relationship,,,
+    100006789786070,+9647805832718,ﱞﱞ,ﱞﱞ,male,https://www.facebook.com/100006789786070,ﱞﱞ ﱞﱞ,,Facebook,,Bghailah  Wasit  Iraq,Bghailah  Wasit  Iraq,الكرار,100006789786070@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,
+    1056413087,+9647828766365,ﱞﱞ,ﱞﱞ,female,https://www.facebook.com/gianni.castillione,,gianni.castillione,ﱞﱞ,,,gianni.castillione@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,
     */
     private function processComa3(array $parts)
     {
@@ -462,8 +487,10 @@ class FacebookPhones extends Parser implements ParserInterface
             }
         }
 
-        if (isset($parts[7])) {
-            $data['work'] = $parts[7];
+        // 5: Facebook URL
+
+        if (isset($parts[6])) {
+            $data['work'] = $parts[6]; // ???
         }
 
         if (isset($parts[8]) && $parts[8]) {
@@ -474,16 +501,14 @@ class FacebookPhones extends Parser implements ParserInterface
             $data['hometown'] = $parts[9];
         }
 
+        // 10: Facebook ID again
+
         if (isset($parts[11])) {
             $data['email'] = $parts[11];
         }
 
-        if (isset($parts[12])) {
-            $data['school'] = $parts[12];
-        }
-
-        if (isset($parts[19])) {
-            $data['relationship_status'] = $parts[19];
+        if (isset($parts[17])) {
+            $data['relationship_status'] = $parts[17];
         }
 
         return $data;
@@ -496,6 +521,7 @@ class FacebookPhones extends Parser implements ParserInterface
     100005156027447,+213557914986,Imad,Bellaouel,None,None,male,fr_FR,Hammam Sousse,Location*,Annaba, Algeria,link*,https://www.facebook.com/profile.php?id=100005156027447,,,,,,,,,,
     1132055813,+213663682076,Rebai,Hicham,None,February 15, 1989,male,fr_FR,None,Location*,None,link*,https://www.facebook.com/rodre%  
     100015297636813,+9647706073245,احمد,الكعبي,male,https://www.facebook.com/100015297636813,احمد الكعبي,,,100015297636813@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,
+	
     */
     private function processComa2(array $parts)
     {

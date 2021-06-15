@@ -11,7 +11,7 @@ class CreateSamples extends Command
      *
      * @var string
      */
-    protected $signature = 'create-samples {input} {output}';
+    protected $signature = 'create-samples {lines} {input} {output}';
 
     /**
      * The description of the command.
@@ -19,11 +19,6 @@ class CreateSamples extends Command
      * @var string
      */
     protected $description = 'Create sample files from a dump';
-
-    /**
-     * Total lines to write.
-     */
-    const LINES = 100;
 
     /**
      * Execute the console command.
@@ -34,6 +29,7 @@ class CreateSamples extends Command
     {
         $input = $this->argument('input');
         $output = $this->argument('output');
+        $lines = $this->argument('lines');
 
         $di = new \RecursiveDirectoryIterator($input);
         foreach (new \RecursiveIteratorIterator($di) as $filePath => $file) {
@@ -53,14 +49,14 @@ class CreateSamples extends Command
                 mkdir($outputDir, 0777, true);
             }
 
-            $lines = '';
+            $content = '';
             $handle = fopen($filePath, 'r');
-            for ($i = 0; $i < self::LINES; $i++) {
-                $lines .= fgets($handle);
+            for ($i = 0; $i < $lines; $i++) {
+                $content .= fgets($handle);
             }
             fclose($handle);
 
-            file_put_contents($outputFile, $lines);
+            file_put_contents($outputFile, $content);
         }
     }
 }

@@ -84,6 +84,7 @@ class Import extends Command
     private function processFile(Parser $parser)
     {
         $filePath = $parser->getFilePath();
+        $this->newLine();
         $this->info('Reading ' . $filePath);
 
         if (File::where('path', $filePath)->exists()) {
@@ -117,14 +118,14 @@ class Import extends Command
 
             $processedLine = $parser->processLine($line);
             if (!$processedLine) {
-                $this->line('');
+                $this->newLine();
                 $this->error('Line not processed');
                 echo $line . PHP_EOL;
                 continue;
             }
 
-            // Add the dump name
-            $processedLine['dump'] = $this->name;
+            // Add the leak name
+            $processedLine['leak'] = $this->name;
 
             // Prepare the ES request
             $data['body'][] = [
@@ -144,13 +145,22 @@ class Import extends Command
         }
         fclose($handle);
 
-        // Sent last data (< chunk)
-        $this->insert($data);
-
         $bar->finish();
-        $this->line('');
+        $this->newLine();
 
-        $this->comment('Total non-processed lines: ' . ($lines - $total));
+        if ($total == 0) {
+            $this->error('No lines were processed');
+            exit;
+        }
+        $nonProcessed = $lines - $total;
+        if ($nonProcessed) {
+            $this->error('Non-processed lines: ' . $nonProcessed);
+        }
+
+        // Sent last data (< chunk)
+        if (!empty($data['body'])) {
+            $this->insert($data);
+        }
 
         File::create([
             'path' => $filePath,

@@ -14,6 +14,181 @@ Phone number, Facebook ID, First Name, Last Name, Gender, Location, Past Locatio
 Email Address, Account Creation Date, Relationship Status, Bio.
 Birthdate
 
+Verified:
+- Sweden
+- Moldova
+- Italy
+- Nigeria 2
+- Nigeria 1
+- Oman 3
+- Oman 1
+- El Salvador
+- Turkey
+- Cameroon
+- Greece
+- Oman 5
+- Lithunia
+- Oman 6
+- UK 1
+- Hong Kong
+- South Korea
+- USA 08
+- China
+- Afghanistan
+- Guatemala
+- Bolivia
+- Italy 2
+- UK 3
+- UK 2
+- Oman 4
+- Sweden
+- Hungary
+- Iceland
+- Poland
+- Kazakhstan
+- Argentina
+- Netherland 01
+- Czech Republic
+- Denmark
+- Palestine
+- Albania
+- Singapore
+- Namibia
+- Czech Republic 2
+- Jamaica
+- Malaysia 2
+- Italy
+- Brunei
+- Philpine
+- Estonia
+- Netherland 02
+- Angola
+- Honduras
+- Taiwan
+- Oman 2
+- Panama
+- Nigeria 3
+- Switzerland
+- Croatia
+- Brazil 1
+- Jordan
+- Luxemburj
+- Brazil 2
+- Indonesia
+- Slovenia
+- Mexico
+- Norway
+- Botswana
+- Japan
+- Malta
+- Uruguay
+- Ireland
+- Finland
+- Canada
+- Colombia 04
+- South Africa 1
+- USA 01
+- Russia 1
+- Dibouti
+- Azerbaijan
+- South Africa 2
+- USA 02
+- Puerto Rico
+- Russia 2
+- USA 03
+- Bulgaria
+- Turkmenistan
+- Costa Rica
+- Chile 1
+- Colombia 02
+- USA 07
+- Maldives
+- USA 06
+- Colombia 03
+- Austria
+- India 1
+- Peru 2
+- Macao
+- Sudan
+- Israel
+- Burkina Faso
+- Serbia
+- Chile 2
+- bangladesh
+- USA 04
+- Colombia 01
+- Mauritius
+- Portugal
+- Spain
+- USA 05
+- India 2
+- Peru 1
+
+Verified, but non-eng relationship:
+- Burundi
+- Moldova
+- Ecuador
+- Ghana 2
+- Ethopia
+- Georgia
+- Cambodia
+- Fiji
+
+Possible missing fields:
+- Cyprus: School, Bio, Work role
+- Alegria: Email, Rel, Work, School, Bio, Work role...
+
+Issues:
+- tunisia: Some fields are messy
+- Iraq 3: Messy
+- Iraq 1: Messy
+- Iraq 6: Messy
+- Iraq 2: Messy
+- Iraq 4: Messy
+- Iraq 5: Messy
+- Libya: Some are messy, check header
+- Syria: Some are messy, check header
+- UAE 3: Messy
+- UAE 1: Some are messy
+- UAE 2: Messy
+- Belgium: Birthdate seems incorrect. Mixed content in email.
+- Germany 02: Messy
+- Germany 01: Messy
+- Egypt 1: Content escaped with ". Fields messy
+- Egypt 2: Content escaped with ". Fields messy
+- Egypt 3: Content escaped with ". Fields messy
+- Egypt 4: Content escaped with ". Fields messy
+- Saudi Arabia 1: Content escaped with ". Fields messy
+- Saudi Arabia 2: Content escaped with ". Fields messy
+- Saudi Arabia 3: Content escaped with ". Fields messy
+- France 01: Messy
+- France 02: Messy
+- France 03: Messy
+- France 04: Messy
+- France 05: Messy
+- Ghana 1: Messy
+- Malaysia 1: Content escaped with ". Fields messy
+- Lebanon: Messy
+- Morocco: Messy
+- Yemen: Messy
+- Qatar: SOME are messy
+- Haiti: Messy. Arab chars?
+- Kuwait: SOME are messy
+- Bahrain: Messy
+
+Lajang = Single
+Menikah = Married
+Berpacaran = In a relationship
+Menjanda/Menduda = Widowed
+Berhubungan sipil = In a civil union
+Bertunangan = Engaged
+Menjalin hubungan tanpa status = In an open relationship
+Rumit = It's complicated
+
+Divorced
+Separated
+In a domestic partnership
+
 */
 
 class FacebookPhones extends Parser implements ParserInterface
@@ -71,6 +246,9 @@ class FacebookPhones extends Parser implements ParserInterface
     private function getCountryByFileName()
     {
         $name = basename($this->getFilePath(), '.txt');
+
+        return $name;
+
         $name = preg_replace('/[0-9]+/', '', $name);
         $name = preg_replace('/\s+/', ' ', $name);
         $name = trim($name);
@@ -86,8 +264,8 @@ class FacebookPhones extends Parser implements ParserInterface
     {
         $line = $this->cleanLine($line);
 
-        // Remove time from date (as it might cointain : separator)
-        $line = preg_replace('/\s\d{2}[:|-]\d{2}[:|-]\d{2}\s([A|P]M)?/', '', $line);
+        // Remove time from date (as it might cointain :-, separators :/)
+        $line = preg_replace('/\s\d{2}[:|\-|,]\d{2}[:|\-|,]\d{2}\s([A|P]M)?/', '', $line);
 
         $line = trim($line);
 
@@ -104,18 +282,26 @@ class FacebookPhones extends Parser implements ParserInterface
         });
 
         // Determine the processor
-        if ($this->separator == ',') {
-            if (isset($parts[3]) && str_starts_with($parts[3], '+')) {
+        if (isset($parts[3]) && str_starts_with($parts[3], '+')) {
+            if (isset($parts[2]) && str_starts_with($parts[2], '@')) {
+                if (isset($parts[6]) && str_starts_with($parts[6], '/')) {
+                    $data = $this->processComa5($parts);
+                } else {
+                    $data = $this->processComa4($parts);
+                }
+            } else {
                 $data = $this->processComa1($parts);
-            } elseif (isset($parts[1]) && str_starts_with($parts[1], '+')) {
-                $data = $this->processComa2($parts);
             }
-        } elseif ($this->separator == ':') {
+        } elseif (isset($parts[1]) && str_starts_with($parts[1], '+')) {
+            $data = $this->processComa2($parts);
+        } elseif (isset($parts[5]) && strstr($parts[5], 'facebook.com')) {
+            $data = $this->processComa3($parts);
+        } else {
             $data = $this->processGeneric($parts);
         }
 
         if (isset($data)) {
-            if (!$data['fb_id']) {
+            if (!isset($data['fb_id']) || !$data['fb_id']) {
                 return false;
             }
             $data['country'] = $this->country;
@@ -127,19 +313,203 @@ class FacebookPhones extends Parser implements ParserInterface
     }
 
     /*
-    // Algeria
+    100000761593283,,al_tamsahh@yahoo.com,+9647706075023,مسلم,02/15/1988,احمد,المكصوصي,male,https://www.facebook.com/al.tamsahh,,al.tamsahh,احمد المكصوصي,وما نيل المطالب ب التمني ولاكن تؤوخذ الدنيا غلابا,حيفا مول,,Baghdad  Iraq,Baghdad  Iraq,موسى بن نصير الابتدائيه,al.tamsahh@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,Single,,,
+    */
+    private function processComa5(array $parts)
+    {
+        $data = [];
+
+        $data['parser'] = 'coma5';
+
+        if (isset($parts[0])) {
+            $data['fb_id'] = $parts[0];
+        }
+
+        if (isset($parts[2])) {
+            $data['email'] = $parts[2];
+        }
+
+        if (isset($parts[3])) {
+            $data['phone'] = $parts[3];
+        }
+
+        if (isset($parts[4])) {
+            $data['first_name'] = $parts[4];
+        }
+
+        if (isset($parts[5])) {
+            $data['last_name'] = $parts[5];
+        }
+
+        if (isset($parts[6])) {
+            if (preg_match('/(\d{2})?\/\d{2}\/\d{4}/', $parts[6])) {
+                $data['birthdate'] = Carbon::createFromFormat('m/d/Y', $parts[6])->format('Y-m-d');
+            }
+        }
+
+        if (isset($parts[8])) {
+            if ($parts[8] == 'male') {
+                $data['gender'] = 'M';
+            } elseif ($parts[8] == 'female') {
+                $data['gender'] = 'F';
+            }
+        }
+
+        if (isset($parts[13]) && $parts[13]) {
+            $data['location'] = $parts[13];
+        }
+
+        if (isset($parts[14]) && $parts[14]) {
+            $data['hometown'] = $parts[14];
+        }
+
+        if (isset($parts[22])) {
+            $data['relationship_status'] = $parts[22];
+        }
+
+        return $data;
+    }
+
+    /*
+    100004642566507,,ahmd17175@rocketmail.com,+9647706093795,احمد,العراقي,male,https://www.facebook.com/100004642566507,العراقي العراقي احمد,,اعمال حره,,Baghdad  Iraq,Baghdad  Iraq,اعدادية المصطفى,100004642566507@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,Single,,,
+    100002501115733,,i_m_d_2006@yahoo.com,+9647706092806,احمد,الكناني,male,https://www.facebook.com/100002501115733,احمد طارق الكناني,,Baghdad  Iraq,Baghdad  Iraq,,100002501115733@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,
+    */
+    private function processComa4(array $parts)
+    {
+        $data = [];
+
+        $data['parser'] = 'coma4';
+
+        if (isset($parts[0])) {
+            $data['fb_id'] = $parts[0];
+        }
+
+        if (isset($parts[2])) {
+            $data['email'] = $parts[2];
+        }
+
+        if (isset($parts[3])) {
+            $data['phone'] = $parts[3];
+        }
+
+        if (isset($parts[4])) {
+            $data['first_name'] = $parts[4];
+        }
+
+        if (isset($parts[5])) {
+            $data['last_name'] = $parts[5];
+        }
+
+        if (isset($parts[6])) {
+            if ($parts[6] == 'male') {
+                $data['gender'] = 'M';
+            } elseif ($parts[4] == 'female') {
+                $data['gender'] = 'F';
+            }
+        }
+
+        if (isset($parts[10]) && $parts[10]) {
+            $data['location'] = $parts[10];
+        }
+
+        if (isset($parts[11]) && $parts[11]) {
+            $data['hometown'] = $parts[11];
+        }
+
+        if (isset($parts[19])) {
+            $data['relationship_status'] = $parts[19];
+        }
+
+        return $data;
+    }
+
+    /*
+    100024297620720,+9647807440886,احمد,دعام,male,https://www.facebook.com/100024297620720,احمد دعام,,,100024297620720@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,
+    100015147180676,+9647807440910,احمد,الكربلائي,male,https://www.facebook.com/100015147180676,احمد الكربلائي,,,100015147180676@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,
+    100024787162768,+9647807441168,احمد,الجميلي,male,https://www.facebook.com/100024787162768,احمد الجميلي,,,100024787162768@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,
+    100000633520831,+9647706088983,احمد,الهلالي,,https://www.facebook.com/ahmed.nije.1,,ahmed.nije.1,احمد الهلالي,,Baghdad  Iraq,Baghdad  Iraq,University of Baghdad,ahmed.nije.1@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,
+    100017696655979,+9647706020802,احمد,ابو حسام,male,https://www.facebook.com/100017696655979,ابو حسام احمد,,Baghdad  Iraq,Irbil  Iraq,,100017696655979@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,
+    100008568523802,+9647706020030,احمد,الباوي,male,https://www.facebook.com/100008568523802,احمد الباوي,,Baghdad  Iraq,Baghdad  Iraq,,100008568523802@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,
+    100005717779395,+9647706072648,احمد,شاكر,male,https://www.facebook.com/100005717779395,احمد شاكر,اذادعتك قدرتك على ظلم الناس فتذكر قدرة الله عليك,Self-Employed,تاجر ملابس,,Baghdad  Iraq,Global United School - GUS,100005717779395@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,Separated,,,
+    */
+    private function processComa3(array $parts)
+    {
+        $data = [];
+
+        $data['parser'] = 'coma3';
+
+        if (isset($parts[0])) {
+            $data['fb_id'] = $parts[0];
+        }
+
+        if (isset($parts[1])) {
+            $data['phone'] = $parts[1];
+        }
+
+        if (isset($parts[2])) {
+            $data['first_name'] = $parts[2];
+        }
+
+        if (isset($parts[3])) {
+            $data['last_name'] = $parts[3];
+        }
+
+        if (isset($parts[4])) {
+            if ($parts[4] == 'male') {
+                $data['gender'] = 'M';
+            } elseif ($parts[4] == 'female') {
+                $data['gender'] = 'F';
+            }
+        }
+
+        if (isset($parts[7])) {
+            $data['work'] = $parts[7];
+        }
+
+        if (isset($parts[8]) && $parts[8]) {
+            $data['location'] = $parts[8];
+        }
+
+        if (isset($parts[9]) && $parts[9]) {
+            $data['hometown'] = $parts[9];
+        }
+
+        if (isset($parts[11])) {
+            $data['email'] = $parts[11];
+        }
+
+        if (isset($parts[12])) {
+            $data['school'] = $parts[12];
+        }
+
+        if (isset($parts[19])) {
+            $data['relationship_status'] = $parts[19];
+        }
+
+        return $data;
+    }
+
+    /*
     id,phone,first_name,last_name,email,birthday,gender,locale,hometown,location,link
     100027836001192,+213555080106,Nã,Ssïm,None,None,male,fr_FR,None,Location*,None,link*,https://www.facebook.com/profile.php?id=100027836001192,
     100027461777769,+213557914999,Abdou,Jilat,None,None,male,fr_FR,None,Location*,None,link*,https://www.facebook.com/abdou.jilat,,,,,,,,,,,
     100005156027447,+213557914986,Imad,Bellaouel,None,None,male,fr_FR,Hammam Sousse,Location*,Annaba, Algeria,link*,https://www.facebook.com/profile.php?id=100005156027447,,,,,,,,,,
     1132055813,+213663682076,Rebai,Hicham,None,February 15, 1989,male,fr_FR,None,Location*,None,link*,https://www.facebook.com/rodre%  
+    100015297636813,+9647706073245,احمد,الكعبي,male,https://www.facebook.com/100015297636813,احمد الكعبي,,,100015297636813@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,
     */
     private function processComa2(array $parts)
     {
-        $data = [
-            'fb_id' => $parts[0],
-            'phone' => $parts[1],
-        ];
+        $data = [];
+
+        $data['parser'] = 'coma2';
+
+        if (isset($parts[0])) {
+            $data['fb_id'] = $parts[0];
+        }
+
+        if (isset($parts[1])) {
+            $data['phone'] = $parts[1];
+        }
 
         if (isset($parts[2])) {
             $data['first_name'] = $parts[2];
@@ -190,13 +560,21 @@ class FacebookPhones extends Parser implements ParserInterface
     100014233666120,,,+97450520675,,,Abdulla Hil,Maruf Molla,male,https://www.facebook.com/abdullahil.marufmolla.58,,abdullahil.marufmolla.58,Abdulla Hil Maruf Molla,,HVAC Technician,,Diamond Harbour,Diamond Harbour,Fakir Chand College,abdullahil.marufmolla.58@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,,,,,,,
     100001620759290,,,+97455133157,,,Aazath,Mohamed,male,https://www.facebook.com/Aazath,,Aazath,Aazath Mohamed,No thing 2 say about me but 1 day ?,classical palace interior design doha  qatar,Systems Engineer,Kaduwela  Sri Lanka,Doha,PLMCC,Aazath@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,Single,,,,,,,,,
     ??100011903084137,,,+97433912145,,,z?0000000000000000000000000z? z?0000000000000000000000000z?,z?0000000000000000000000000z? z?0000000000000000000000000z?,male,https://www.facebook.com/ghazok.baloch,,ghazok.baloch,z?0000000000000000000000000z? z?0000000000000000000000000z? z?0000000000000000000000000z? z?0000000000000000000000000z?,,,,,,,ghazok.baloch@facebook.com,0,0,0,1/1/0001 12:00:00 AM,1/1/0001 12:00:00 AM,,,,,,,,,,
+    
     */
     private function processComa1(array $parts)
     {
-        $data = [
-            'fb_id' => $parts[0],
-            'phone' => $parts[3],
-        ];
+        $data = [];
+
+        $data['parser'] = 'coma1';
+
+        if (isset($parts[0])) {
+            $data['fb_id'] = $parts[0];
+        }
+
+        if (isset($parts[3])) {
+            $data['phone'] = $parts[3];
+        }
 
         if (isset($parts[6])) {
             $data['first_name'] = $parts[6];
@@ -206,10 +584,12 @@ class FacebookPhones extends Parser implements ParserInterface
             $data['last_name'] = $parts[7];
         }
 
-        if ($parts[8] == 'male') {
-            $data['gender'] = 'M';
-        } elseif ($parts[8] == 'female') {
-            $data['gender'] = 'F';
+        if (isset($parts[8])) {
+            if ($parts[8] == 'male') {
+                $data['gender'] = 'M';
+            } elseif ($parts[8] == 'female') {
+                $data['gender'] = 'F';
+            }
         }
 
         if (isset($parts[13])) {
@@ -229,7 +609,7 @@ class FacebookPhones extends Parser implements ParserInterface
         }
 
         if (isset($parts[17])) {
-            $data['past_location'] = $parts[17];
+            $data['hometown'] = $parts[17];
         }
 
         if (isset($parts[18])) {
@@ -263,10 +643,17 @@ class FacebookPhones extends Parser implements ParserInterface
     */
     private function processGeneric(array $parts)
     {
-        $data = [
-            'phone' => $parts[0],
-            'fb_id' => $parts[1],
-        ];
+        $data = [];
+
+        $data['parser'] = 'generic';
+
+        if (isset($parts[0])) {
+            $data['phone'] = $parts[0];
+        }
+
+        if (isset($parts[1])) {
+            $data['fb_id'] = $parts[1];
+        }
 
         if (isset($parts[2])) {
             $data['first_name'] = $parts[2];
@@ -289,7 +676,7 @@ class FacebookPhones extends Parser implements ParserInterface
         }
 
         if (isset($parts[6])) {
-            $data['past_location'] = $parts[6];
+            $data['hometown'] = $parts[6];
         }
 
         if (isset($parts[7])) {

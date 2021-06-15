@@ -5,9 +5,9 @@ output=$2
 
 mkdir -p $output
 
-for file in $(find $input -type f -name '*.txt' -or -name '*.csv'); 
+for file in $(find "$input" -type f -name '*.txt' -or -name '*.csv'); 
 do 
     outputFile="${file/$input/$output}"
-    mkdir -p `dirname $outputFile`
-    head -100 $file > $outputFile
+    mkdir -p `dirname "$outputFile"`
+    head -100 "$file" > "$outputFile"
 done

@@ -31,16 +31,6 @@ class Import extends Command
     protected $client;
 
     /**
-     * ES Host.
-     */
-    const HOST = 'http://192.168.1.10:9200';
-
-    /**
-     * ES Index
-     */
-    const INDEX = 'leaks';
-
-    /**
      * Chunk size
      */
     const CHUNK = 500;
@@ -59,7 +49,7 @@ class Import extends Command
      */
     public function handle()
     {
-        $this->client = ClientBuilder::create()->setHosts([self::HOST])->build();
+        $this->client = ClientBuilder::create()->setHosts([env('ES_URL')])->build();
 
         $path = $this->argument('path');
         $this->name = $this->argument('name');
@@ -135,7 +125,7 @@ class Import extends Command
             // Prepare the ES request
             $data['body'][] = [
                 'index' => [
-                    '_index' => self::INDEX,
+                    '_index' => env('ES_INDEX'),
                     '_id' => md5(json_encode($processedLine)),
                 ]
             ];
@@ -189,8 +179,12 @@ class Import extends Command
 
     private function delete()
     {
-        $this->client->indices()->delete([
-            'index' => self::INDEX,
-        ]);
+        try {
+            $this->client->indices()->delete([
+                'index' => env('ES_INDEX'),
+            ]);
+        } catch (\Exception $e) {
+            // 
+        }
     }
 }

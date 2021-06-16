@@ -233,9 +233,6 @@ class FacebookPhones extends Parser implements ParserInterface
     private function getCountryByFileName()
     {
         $name = basename($this->getFilePath(), '.txt');
-
-        return $name;
-
         $name = preg_replace('/[0-9]+/', '', $name);
         $name = preg_replace('/\s+/', ' ', $name);
         $name = trim($name);

@@ -275,6 +275,7 @@ class FacebookPhones extends Parser implements ParserInterface
 
         // Phone on part 3
         if (isset($parts[3]) && str_starts_with($parts[3], '+')) {
+            // Status:
             // Email on part 2
             if (isset($parts[2]) && strstr($parts[2], '@')) {
                 $data['parser'] = 'A';

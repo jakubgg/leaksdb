@@ -31,7 +31,7 @@ use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
 
 */
 
-class FacebookPhones extends Parser implements ParserInterface
+class PhoneHouse extends Parser implements ParserInterface
 {
     /**
      * {@inheritdoc }

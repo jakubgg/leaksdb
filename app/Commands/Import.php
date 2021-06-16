@@ -176,7 +176,7 @@ class Import extends Command
             $res = $this->client->bulk($data);
             if ($res['errors']) {
                 $this->error('ES Error');
-                print_r($res);
+                // print_r($res);
             } else {
                 break;
             }

@@ -10,7 +10,7 @@ user:pass
 email:pass
 */
 
-class FacebookPhones extends Parser implements ParserInterface
+class UserPass extends Parser implements ParserInterface
 {
     /**
      * {@inheritdoc }

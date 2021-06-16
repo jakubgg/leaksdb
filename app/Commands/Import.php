@@ -6,6 +6,7 @@ use App\Libs\Contracts\Interfaces\Parser;
 use App\Models\File;
 use LaravelZero\Framework\Commands\Command;
 use Elasticsearch\ClientBuilder;
+use Illuminate\Support\Facades\Storage;
 
 class Import extends Command
 {
@@ -113,9 +114,7 @@ class Import extends Command
 
             $processedLine = $parser->processLine($line);
             if (!$processedLine) {
-                $this->newLine();
-                $this->error('Line not processed');
-                echo $line . PHP_EOL;
+                Storage::append("non-processed.txt", $line);
                 continue;
             }
 

@@ -271,7 +271,7 @@ class FacebookPhones extends Parser implements ParserInterface
         $map = [];
 
         // Debug
-        $data = $parts;
+        // $data = $parts;
 
         // Phone on part 3
         if (isset($parts[3]) && str_starts_with($parts[3], '+')) {

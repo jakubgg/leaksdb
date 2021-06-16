@@ -36,14 +36,16 @@ class Badoo extends Parser implements ParserInterface
         $line = $this->cleanLine($line);
         $parts = explode($this->separator, $line);
 
-        $data = [
-            'badoo_id' => $parts[0],
-            'email' => $parts[1],
-            'username' => $parts[2],
-            'hash' => $parts[3],
-            'name' => $parts[4],
-            'gender' => $parts[9],
+        $map = [
+            0 => 'badoo_id',
+            1 => 'email',
+            2 => 'username',
+            3 => 'hash',
+            4 => 'name',
+            9 => 'gender',
         ];
+
+        $data = $this->parse($map, $parts);
 
         if ($parts[7] != '0000-00-00') {
             $data['birthdate'] = $parts[7];

@@ -26,11 +26,13 @@ class Adobe extends Parser implements ParserInterface
         $line = substr($line, 0, -4);
         $parts = explode($this->separator, $line);
 
-        return [
-            'adobe_id' => $parts[0],
-            'email' => $parts[2],
-            'hash' => $parts[3],
-            'secret_question' => $parts[4],
+        $map = [
+            0 => 'adobe_id',
+            2 => 'email',
+            3 => 'hash',
+            4 => 'secret_question',
         ];
+
+        return $this->parse($map, $parts);
     }
 }

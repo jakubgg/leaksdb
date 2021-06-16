@@ -93,4 +93,22 @@ abstract class Parser
 
         return in_array($ext, $this->extensions);
     }
+
+    /**
+     * Parse a map.
+     *
+     * @param array $map
+     * @param array $parts
+     * @return array
+     */
+    protected function parse($map, $parts)
+    {
+        $data = [];
+        foreach ($map as $key => $field) {
+            if (isset($parts[$key]) && $parts[$key] && $parts[$key] !== 'null') {
+                $data[$field] = $parts[$key];
+            }
+        }
+        return $data;
+    }
 }

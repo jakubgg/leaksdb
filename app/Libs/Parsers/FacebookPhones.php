@@ -565,7 +565,7 @@ class FacebookPhones extends Parser implements ParserInterface
         return false;
     }
 
-    private function parse(array &$data, array $parts, array $map)
+    protected function parse(array &$data, array $parts, array $map)
     {
         foreach ($map as $key => $field) {
             if ($field == 'gender') {

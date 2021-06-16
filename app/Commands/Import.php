@@ -90,7 +90,7 @@ class Import extends Command
         $this->newLine();
         $this->info('Reading ' . $filePath);
 
-        if (File::where('path', $filePath)->exists()) {
+        if (!$this->option('delete') && File::where('path', $filePath)->exists()) {
             $this->line('File already processed!');
             return;
         }
@@ -186,8 +186,9 @@ class Import extends Command
     private function delete()
     {
         try {
-            $this->client->indices()->delete([
+            $this->client->delete([
                 'index' => env('ES_INDEX'),
+                'leak' => $this->name,
             ]);
         } catch (\Exception $e) {
             // 

@@ -536,13 +536,13 @@ class FacebookPhones extends Parser implements ParserInterface
             ];
             if (isset($parts[9])) {
                 $parts[9] = trim($parts[9]);
-                if (preg_match('/(\d{2})?\/\d{2}\/\d{4}/', $parts[9])) {
+                if (preg_match('/(\d{2})?\/\d{2}\/\d{4}^/', $parts[9])) {
                     $data['work_date'] = Carbon::createFromFormat('m/d/Y', $parts[9])->format('Y-m-d');
                 }
             }
             if (isset($parts[11])) {
                 $parts[11] = trim($parts[11]);
-                if (preg_match('/(\d{2})?\/\d{2}\/\d{4}/', $parts[11])) {
+                if (preg_match('/(\d{2})?\/\d{2}\/\d{4}^/', $parts[11])) {
                     $data['birthdate'] = Carbon::createFromFormat('m/d/Y', $parts[11])->format('Y-m-d');
                 }
             }

@@ -59,7 +59,7 @@ class DropBox extends Parser implements ParserInterface
         return [
             'email' => $parts[0],
             'hash' => $parts[1],
-            'hash_type' => $this->getHashType($parts[1]),
+            // 'hash_type' => $this->getHashType($parts[1]),
         ];
     }
 

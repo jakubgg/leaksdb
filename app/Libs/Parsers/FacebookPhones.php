@@ -549,7 +549,7 @@ class FacebookPhones extends Parser implements ParserInterface
         }
 
         if (!empty($map)) {
-            $this->parse($data, $parts, $map);
+            $this->parseArray($data, $parts, $map);
         }
 
         if (isset($data)) {
@@ -565,7 +565,7 @@ class FacebookPhones extends Parser implements ParserInterface
         return false;
     }
 
-    protected function parse(array &$data, array $parts, array $map)
+    protected function parseArray(array &$data, array $parts, array $map)
     {
         foreach ($map as $key => $field) {
             if ($field == 'gender') {

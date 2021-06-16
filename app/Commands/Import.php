@@ -44,6 +44,11 @@ class Import extends Command
     protected $name;
 
     /**
+     * Non-processed lines output log.
+     */
+    const NONPROCESSED = 'non-processed.txt';
+
+    /**
      * Execute the console command.
      *
      * @return mixed
@@ -58,6 +63,8 @@ class Import extends Command
         if ($this->option('delete')) {
             $this->delete();
         }
+
+        Storage::delete(self::NONPROCESSED);
 
         $parserClassName = 'App\\Libs\\Parsers\\' . $this->argument('parser');
 
@@ -114,7 +121,7 @@ class Import extends Command
 
             $processedLine = $parser->processLine($line);
             if (!$processedLine) {
-                Storage::append("non-processed.txt", $line);
+                Storage::append(self::NONPROCESSED, $line, null);
                 continue;
             }
 

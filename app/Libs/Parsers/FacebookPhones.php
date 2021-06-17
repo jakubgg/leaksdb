@@ -7,177 +7,18 @@ use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 
-/*
-
-https://twitter.com/UnderTheBreach/status/1378314424239460352
-Phone number, Facebook ID, First Name, Last Name, Gender, Location, Past Location, Relationship Status, 
-Email Address, Account Creation Date, Relationship Status, Bio.
-Birthdate
-
-Verified:
-- Sweden
-- Moldova
-- Italy
-- Nigeria 2
-- Nigeria 1
-- Oman 3
-- Oman 1
-- El Salvador
-- Turkey
-- Cameroon
-- Greece
-- Oman 5
-- Lithunia
-- Oman 6
-- UK 1
-- Hong Kong
-- South Korea
-- USA 08
-- China
-- Afghanistan
-- Guatemala
-- Bolivia
-- Italy 2
-- UK 3
-- UK 2
-- Oman 4
-- Sweden
-- Hungary
-- Iceland
-- Poland
-- Kazakhstan
-- Argentina
-- Netherland 01
-- Czech Republic
-- Denmark
-- Palestine
-- Albania
-- Singapore
-- Namibia
-- Czech Republic 2
-- Jamaica
-- Malaysia 2
-- Italy
-- Brunei
-- Philpine
-- Estonia
-- Netherland 02
-- Angola
-- Honduras
-- Taiwan
-- Oman 2
-- Panama
-- Nigeria 3
-- Switzerland
-- Croatia
-- Brazil 1
-- Jordan
-- Luxemburj
-- Brazil 2
-- Indonesia
-- Slovenia
-- Mexico
-- Norway
-- Botswana
-- Japan
-- Malta
-- Uruguay
-- Ireland
-- Finland
-- Canada
-- Colombia 04
-- South Africa 1
-- USA 01
-- Russia 1
-- Dibouti
-- Azerbaijan
-- South Africa 2
-- USA 02
-- Puerto Rico
-- Russia 2
-- USA 03
-- Bulgaria
-- Turkmenistan
-- Costa Rica
-- Chile 1
-- Colombia 02
-- USA 07
-- Maldives
-- USA 06
-- Colombia 03
-- Austria
-- India 1
-- Peru 2
-- Macao
-- Sudan
-- Israel
-- Burkina Faso
-- Serbia
-- Chile 2
-- bangladesh
-- USA 04
-- Colombia 01
-- Mauritius
-- Portugal
-- Spain
-- USA 05
-- India 2
-- Peru 1
-- tunisia
-
-Verified, but non-eng relationship:
-- Burundi
-- Moldova
-- Ecuador
-- Ghana 2
-- Ethopia
-- Georgia
-- Cambodia
-- Fiji
-
-Possible missing fields:
-- Cyprus: School, Bio, Work role
-- Alegria: Email, Rel, Work, School, Bio, Work role...
-
-Issues:
-- Iraq 3: Messy
-- Iraq 1: Messy
-- Iraq 6: Messy
-- Iraq 2: Messy
-- Iraq 4: Messy
-- Iraq 5: Messy
-- Libya: Some are messy, check header
-- Syria: Some are messy, check header
-- UAE 3: Messy
-- UAE 1: Some are messy
-- UAE 2: Messy
-- Belgium: Birthdate seems incorrect. Mixed content in email.
-- Germany 02: Messy
-- Germany 01: Messy
-- Egypt 1: Content escaped with ". Fields messy
-- Egypt 2: Content escaped with ". Fields messy
-- Egypt 3: Content escaped with ". Fields messy
-- Egypt 4: Content escaped with ". Fields messy
-- Saudi Arabia 1: Content escaped with ". Fields messy
-- Saudi Arabia 2: Content escaped with ". Fields messy
-- Saudi Arabia 3: Content escaped with ". Fields messy
-- France 01: Messy
-- France 02: Messy
-- France 03: Messy
-- France 04: Messy
-- France 05: Messy
-- Ghana 1: Messy
-- Malaysia 1: Content escaped with ". Fields messy
-- Lebanon: Messy
-- Morocco: Messy
-- Yemen: Messy
-- Qatar: SOME are messy
-- Haiti: Messy. Arab chars?
-- Kuwait: SOME are messy
-- Bahrain: Messy
-
-*/
-
+/**
+ * Facebook Phones 2021 leak
+ * 
+ * Records: 533 M (370 M)
+ * 
+ * Formats: 
+ *  - Hell of a pain
+ * 
+ * References: 
+ *  - https://www.troyhunt.com/the-facebook-phone-numbers-are-now-searchable-in-have-i-been-pwned/
+ *  - https://twitter.com/UnderTheBreach/status/1378314424239460352
+ */
 class FacebookPhones extends Parser implements ParserInterface
 {
     /**

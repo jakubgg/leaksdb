@@ -26,6 +26,8 @@ Optional parameters:
 * `--delete` Will delete all the ES documents of that leak, based on the leak name.
 * `--test` Will print the parsed data without performing DB changes.
 
+The script will map all the processed files in `database/database.sqlite` file. An already migrated database is included in the repository. If a record exists in the database, the file will be ignored.
+
 ## Dev & Debug
 
 ### Elaticsearch + Kibana

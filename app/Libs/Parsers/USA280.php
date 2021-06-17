@@ -23,4 +23,21 @@ use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
  */
 class USA280 extends Parser implements ParserInterface
 {
+    /**
+     * {@inheritdoc }
+     */
+    protected $extensions = ['txt'];
+
+    /**
+     * {@inheritdoc }
+     */
+    protected $separator = ':';
+
+    /**
+     * {@inheritdoc }
+     */
+    public function processLine(string $line)
+    {
+        // TODO
+    }
 }

@@ -20,7 +20,7 @@ php leaksdb import <leak_name> <dump_path> <parser_class>
 Where:
 * `<leak_name>` leak name (stored as ES field).
 * `<dump_path>` folder containing the uncompressed leak dump files.
-* `<parser_class>` PHP Class in `Libs/Parsers` to use.
+* `<parser_class>` PHP Class in `Libs/Parsers` to use (for generic *username:password* or *email:password*, use `UserPass` parser).
 
 Optional parameters:
 * `--delete` Will delete all the ES documents of that leak, based on the leak name.

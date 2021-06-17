@@ -6,15 +6,24 @@ use App\Libs\Contracts\Abstracts\Parser;
 use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
 
 /**
- * ClubHouse 2012 leak
+ * ClubHouse 2021
  * 
- * Records: 1.3 M
+ * Description:
+ *  Clubhouse data leak: 1.3 million scraped user records leaked online for free
+ * 
+ * Records: 
+ *  - Official: 1.3 M (1,300,517)
  * 
  * Formats: 
  *  - user_id,name,photo_url,username,twitter,instagram,num_followers,num_following,time_created,invited_by_user_profile
  * 
  * References: 
  *  - https://www.businessinsider.com/clubhouse-data-leak-1-million-users-2021-4
+ * 
+ * Download:
+ *  - http://3kp6j22pz3zkv76yutctosa6djpj4yib2icvdqxucdaxxedumhqicpad.onion/clubhouse/
+ *  - http://fayloobmennik.cloud/7419760
+ *  - https://anonfiles.com/tfL362q0u3/user_rar
  */
 class ClubHouse extends Parser implements ParserInterface
 {

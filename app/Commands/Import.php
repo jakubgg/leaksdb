@@ -15,7 +15,7 @@ class Import extends Command
      *
      * @var string
      */
-    protected $signature = 'import {name} {path} {parser} {--delete}';
+    protected $signature = 'import {name} {path} {parser} {--delete} {--test}';
 
     /**
      * The description of the command.
@@ -44,6 +44,13 @@ class Import extends Command
     protected $name;
 
     /**
+     * Test mode?
+     *
+     * @var bool
+     */
+    protected $test = false;
+
+    /**
      * Non-processed lines output log.
      */
     const NONPROCESSED = 'non-processed.txt';
@@ -59,6 +66,7 @@ class Import extends Command
 
         $path = $this->argument('path');
         $this->name = $this->argument('name');
+        $this->test = $this->option('test');
 
         if ($this->option('delete')) {
             $this->delete();
@@ -90,7 +98,7 @@ class Import extends Command
         $this->newLine();
         $this->info('Reading ' . $filePath);
 
-        if (!$this->option('delete') && File::where('path', $filePath)->exists()) {
+        if (!$this->test && !$this->option('delete') && File::where('path', $filePath)->exists()) {
             $this->line('File already processed!');
             return;
         }
@@ -128,6 +136,10 @@ class Import extends Command
             // Add the leak name
             $processedLine['leak'] = $this->name;
 
+            if ($this->test) {
+                print_r($processedLine);
+            }
+
             // Prepare the ES request
             $data['body'][] = [
                 'index' => [
@@ -163,15 +175,21 @@ class Import extends Command
             $this->insert($data);
         }
 
-        File::create([
-            'path' => $filePath,
-            'lines' => $lines,
-            'processed' => $total,
-        ]);
+        if (!$this->test) {
+            File::create([
+                'path' => $filePath,
+                'lines' => $lines,
+                'processed' => $total,
+            ]);
+        }
     }
 
     private function insert($data)
     {
+        if ($this->test) {
+            return;
+        }
+
         do {
             $res = $this->client->bulk($data);
             if ($res['errors']) {

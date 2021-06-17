@@ -6,9 +6,21 @@ use App\Libs\Contracts\Abstracts\Parser;
 use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
 
 /**
- * Adobe 2013 leak
+ * Adobe 2013
  * 
- * Records: 152 M
+ * Description: 
+ *  In October 2013, 153 million Adobe accounts were breached with each containing 
+ *  an internal ID, username, email, encrypted password and a password hint in 
+ *  plain text. The password cryptography was poorly done and many were quickly 
+ *  resolved back to plain text. The unencrypted hints also disclosed much about 
+ *  the passwords adding further to the risk that hundreds of millions of Adobe 
+ *  customers already faced.
+ * 
+ * Records: 
+ *  - Official: 152 M (152,445,165)
+ * 
+ * Data: 
+ *  - Email addresses, Password hints, Passwords, Usernames
  * 
  * Formats: 
  *  - id-|-?-|-email-|-encrypted_password-|-pass_hint|--

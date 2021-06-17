@@ -6,11 +6,24 @@ use App\Libs\Contracts\Abstracts\Parser;
 use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
 
 /**
- * Phone House Spain 2021 leak
+ * Phone House Spain 2021
  * 
- * Records: 16 M (or 5 M ?)
+ * Description
+ *  In April 2021, the Spanish retailer Phone House allegedly suffered a 
+ *  ransomware attack that also exposed significant volumes of customer data. 
+ *  Attributed to the Babuk ransomware, a collection of data alleged to be a 
+ *  subset of a larger corpus was posted to a dark web site and contained 5.2M 
+ *  email addresses along with names, nationalities, genders, dates of birth, 
+ *  phone numbers and physical addresses. Phone House has been threatened with 
+ *  further releases if a ransom is not paid.
+ * 
+ * Records: 
+ *  - Official: 16 M (or 5 M ?)
  *  - Policy Receipts: 2.672.025
  *  - Costumer Data: 12.797.782
+ * 
+ * Data:
+ *  - Dates of birth, Email addresses, Genders, Names, Nationalities, Phone numbers, Physical addresses
  * 
  * Formats: 
  *  - csv

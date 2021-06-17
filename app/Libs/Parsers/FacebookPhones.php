@@ -8,9 +8,24 @@ use Carbon\Carbon;
 use Illuminate\Support\Arr;
 
 /**
- * Facebook Phones 2021 leak
+ * Facebook Phones 2021
  * 
- * Records: 533 M (370 M)
+ * Description:
+ *  In April 2021, a large data set of over 500 million Facebook users was 
+ *  made freely available for download. Encompassing approximately 20% of Facebook's 
+ *  subscribers, the data was allegedly obtained by exploiting a vulnerability Facebook 
+ *  advises they rectified in August 2019. The primary value of the data is the association 
+ *  of phone numbers to identities; whilst each record included phone, only 2.5 million 
+ *  contained an email address. Most records contained names and genders with many 
+ *  also including dates of birth, location, relationship status and employer.
+ * 
+ * Data:
+ *  - Dates of birth, Email addresses, Employers, Genders, Geographic locations, 
+ *    Names, Phone numbers, Relationship statuses
+ * 
+ * Records: 
+ *  - Official: 533 M (509,458,528)
+ *  - Lines: 370 M
  * 
  * Formats: 
  *  - Hell of a pain

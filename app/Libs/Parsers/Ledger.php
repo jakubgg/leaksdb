@@ -6,9 +6,20 @@ use App\Libs\Contracts\Abstracts\Parser;
 use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
 
 /**
- * Ledger 2020 leak
+ * Ledger 2020
  * 
- * Records: 1 M + 9.532
+ * Description:
+ *  In June 2020, the hardware crypto wallet manufacturer Ledger suffered a 
+ *  data breach that exposed over 1 million email addresses. The data was 
+ *  initially sold before being dumped publicly in December 2020 and included 
+ *  names, physical addresses and phone numbers. The data was provided to HIBP 
+ *  by Alon Gal, CTO of cybercrime intelligence firm Hudson Rock.
+ * 
+ * Records: 
+ *  - Official: 1 M (1,075,241)
+ * 
+ * Data:
+ *  - Email addresses, Names, Phone numbers, Physical addresses
  * 
  * Formats: 
  *  - email

@@ -6,9 +6,21 @@ use App\Libs\Contracts\Abstracts\Parser;
 use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
 
 /**
- * Badoo 2013 leak
+ * Badoo 2013
  * 
- * Records: 112 M
+ * Description:
+ *  In June 2016, a data breach allegedly originating from the social website Badoo was 
+ *  found to be circulating amongst traders. Likely obtained several years earlier, 
+ *  the data contained 112 million unique email addresses with personal data including names, 
+ *  birthdates and passwords stored as MD5 hashes. Whilst there are many indicators suggesting 
+ *  Badoo did indeed suffer a data breach, the legitimacy of the data could not be emphatically 
+ *  proven so this breach has been categorised as "unverified".
+ * 
+ * Records: 
+ *  - Official: 112 M (112,005,531)
+ * 
+ * Data:
+ *  - Dates of birth, Email addresses, Genders, Names, Passwords, Usernames
  * 
  * Formats: 
  *  - id:email:username:hash(md5):name:?:?:birthdate:gender:?:?:?

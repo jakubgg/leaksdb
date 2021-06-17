@@ -1,36 +1,57 @@
-<p align="center">
-    <img title="Laravel Zero" height="100" src="https://raw.githubusercontent.com/laravel-zero/docs/master/images/logo/laravel-zero-readme.png" />
-</p>
+# LeaksDB
 
-<p align="center">
-  <a href="https://github.com/laravel-zero/framework/actions"><img src="https://img.shields.io/github/workflow/status/laravel-zero/framework/Tests.svg" alt="Build Status"></img></a>
-  <a href="https://packagist.org/packages/laravel-zero/framework"><img src="https://img.shields.io/packagist/dt/laravel-zero/framework.svg" alt="Total Downloads"></a>
-  <a href="https://packagist.org/packages/laravel-zero/framework"><img src="https://img.shields.io/packagist/v/laravel-zero/framework.svg?label=stable" alt="Latest Stable Version"></a>
-  <a href="https://packagist.org/packages/laravel-zero/framework"><img src="https://img.shields.io/packagist/l/laravel-zero/framework.svg" alt="License"></a>
-</p>
+This project **pretend** to parse public leak dumps (like Adobe, Dropbox...) and store those in Elasticsearch.
 
-<h4> <center>This is a <bold>community project</bold> and not an official Laravel one </center></h4>
+## Usage
 
-Laravel Zero was created by, and is maintained by [Nuno Maduro](https://github.com/nunomaduro), and is a micro-framework that provides an elegant starting point for your console application. It is an **unofficial** and customized version of Laravel optimized for building command-line applications.
+## Setup
 
-- Built on top of the [Laravel](https://laravel.com) components.
-- Optional installation of Laravel [Eloquent](https://laravel-zero.com/docs/database/), Laravel [Logging](https://laravel-zero.com/docs/logging/) and many others.
-- Supports interactive [menus](https://laravel-zero.com/docs/build-interactive-menus/) and [desktop notifications](https://laravel-zero.com/docs/send-desktop-notifications/) on Linux, Windows & MacOS.
-- Ships with a [Scheduler](https://laravel-zero.com/docs/task-scheduling/) and  a [Standalone Compiler](https://laravel-zero.com/docs/build-a-standalone-application/).
-- Integration with [Collision](https://github.com/nunomaduro/collision) - Beautiful error reporting
+1) Run `composer install`.
+2) Adjust the `.env` (use `.env.example` as source) with your ES settings.
 
-------
+## Importing dumps
 
-## Documentation
+Just run the following command (and wait a few days, since is PHP & single-thread script after all):
 
-For full documentation, visit [laravel-zero.com](https://laravel-zero.com/).
+```
+php leaksdb import <leak_name> <dump_path> <parser_class>
+```
 
-## Support the development
-**Do you like this project? Support it by donating**
+Where:
+* `<leak_name>` leak name (stored as ES field).
+* `<dump_path>` folder containing the uncompressed leak dump files.
+* `<parser_class>` PHP Class in `Libs/Parsers` to use.
 
-- PayPal: [Donate](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=66BYDWAT92N6L)
-- Patreon: [Donate](https://www.patreon.com/nunomaduro)
+Optional parameters:
+* `--delete` Will delete all the ES documents of that leak, based on the leak name.
+* `--test` Will print the parsed data without performing DB changes.
 
-## License
+## Dev & Debug
 
-Laravel Zero is an open-source software licensed under the MIT license.
+### Elaticsearch + Kibana
+
+For easier development, you can run a local dockerized ES+Kibana with:
+
+```
+docker-compose -f docker-compose-es-kibana.yml up
+```
+
+### Non-parsed lines
+
+Some times, the dumps contain lines that are in different formats or that fails when being parsed.
+The `import` command will create a `non-processed.txt file` containing all the lines that could not be parsed.
+That file will be **deleted** on each run!
+
+### Create dump samples
+
+In order to play around, dev or debbug when importing dumps, you can generate sample files from a dump folder.
+The `create-samples` script will generate a copy of a dump directory (recursivelly) but with only a number of lines for each file.
+
+```
+php leaksdb create-samples <lines> <dump_path> <output_path>
+```
+
+Where:
+* `<lines>`: Number of lines to store.
+* `<dump_path>`: folder containing the uncompressed leak dump files.
+* `<output_path>`: folder to store the samples.

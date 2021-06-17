@@ -6,9 +6,21 @@ use App\Libs\Contracts\Abstracts\Parser;
 use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
 
 /**
- * DropBox 2012 leak
+ * Dropbox 2012
  * 
- * Records: 68 M
+ * Description:
+ *  In mid-2012, Dropbox suffered a data breach which exposed the stored 
+ *  credentials of tens of millions of their customers. In August 2016, 
+ *  they forced password resets for customers they believed may be at risk. 
+ *  A large volume of data totalling over 68 million records was subsequently 
+ *  traded online and included email addresses and salted hashes of passwords 
+ *  (half of them SHA1, half of them bcrypt).
+ * 
+ * Records: 
+ *  - Official: 68 M (68,648,009)
+ * 
+ * Data:
+ *  - Email addresses, Passwords
  * 
  * Formats: 
  *  - email:hash(md5|sha1|bcrypt)
@@ -17,7 +29,7 @@ use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
  *  - https://www.troyhunt.com/the-dropbox-hack-is-real/
  *  - https://www.vice.com/en/article/nz74qb/hackers-stole-over-60-million-dropbox-accounts
  */
-class DropBox extends Parser implements ParserInterface
+class Dropbox extends Parser implements ParserInterface
 {
     /**
      * {@inheritdoc }

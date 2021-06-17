@@ -38,7 +38,7 @@ class LinkedIn extends Parser implements ParserInterface
     /**
      * {@inheritdoc }
      */
-    protected $separator = [':'];
+    protected $separator = ':';
 
     /**
      * {@inheritdoc }

@@ -15,7 +15,8 @@ use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
  *  birth, province of birth, address, Card number and mobile phone number
  * 
  * Records: 
- *  - Official: 33 M (7,000,007 ?)
+ *  - Official: 33 M
+ *  - Lines: 700,0007 (?)
  * 
  * Download: 
  *  - http://3kp6j22pz3zkv76yutctosa6djpj4yib2icvdqxucdaxxedumhqicpad.onion/33m-bank-mellat-iran/

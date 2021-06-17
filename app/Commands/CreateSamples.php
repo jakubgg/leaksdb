@@ -43,6 +43,8 @@ class CreateSamples extends Command
                 continue;
             }
 
+            $this->line($filePath);
+
             $outputFile = str_replace($input, $output, $filePath);
             $outputDir = dirname($outputFile);
             if (!is_dir($outputDir)) {

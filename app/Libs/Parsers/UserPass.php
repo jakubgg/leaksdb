@@ -22,7 +22,6 @@ class UserPass extends Parser implements ParserInterface
         }
 
         $data = [
-            'dump' => $this->name,
             'password' => $matches[2][0],
         ];
 

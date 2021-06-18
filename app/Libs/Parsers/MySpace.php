@@ -17,7 +17,7 @@ use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
  *  the data suggests it was 8 years before being made public.
  * 
  * Records: 
- *  - Official: 2008 M (359,420,698)
+ *  - Official: 360 M (359,420,698)
  * 
  * Data: 
  *  - Email addresses, Passwords, Usernames

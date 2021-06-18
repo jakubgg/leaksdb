@@ -45,7 +45,7 @@ class CreateSamples extends Command
 
             $this->line($filePath);
 
-            $outputFile = str_replace($input, $output, $filePath);
+            $outputFile = str_replace($input, $output, '/' . $filePath);
             $outputDir = dirname($outputFile);
             if (!is_dir($outputDir)) {
                 mkdir($outputDir, 0777, true);

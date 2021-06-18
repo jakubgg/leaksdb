@@ -1,4 +1,8 @@
 database/database.sqlite
 vendor/
-.DS_Store.env
+.vscode/
+nbproject/
+.DS_Store
 .env
+.phpunit.result.cache
+.idea

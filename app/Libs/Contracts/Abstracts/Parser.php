@@ -2,9 +2,7 @@
 
 namespace App\Libs\Contracts\Abstracts;
 
-use App\Libs\Contracts\Interfaces\Parser as InterfacesParser;
-
-abstract class Parser implements InterfacesParser
+abstract class Parser
 {
     /**
      * File Path
@@ -47,6 +45,14 @@ abstract class Parser implements InterfacesParser
     }
 
     /**
+     * Extract data from a document line.
+     *
+     * @param  string $line
+     * @return false|array
+     */
+    abstract public function processLine(string $line);
+
+    /**
      * Clean the line.
      *
      * @param string $line
@@ -73,7 +79,9 @@ abstract class Parser implements InterfacesParser
     }
 
     /**
-     * {@inheritdoc }
+     * Count all the lines of the file.
+     *
+     * @return int
      */
     public function countLines()
     {

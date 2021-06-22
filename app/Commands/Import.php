@@ -2,7 +2,7 @@
 
 namespace App\Commands;
 
-use App\Libs\Contracts\Interfaces\Parser;
+use App\Libs\Contracts\Abstracts\Parser;
 use App\Models\File;
 use LaravelZero\Framework\Commands\Command;
 use Elasticsearch\ClientBuilder;

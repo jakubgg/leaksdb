@@ -3,7 +3,6 @@
 namespace App\Libs\Parsers;
 
 use App\Libs\Contracts\Abstracts\Parser;
-use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 
@@ -34,7 +33,7 @@ use Illuminate\Support\Arr;
  *  - https://www.troyhunt.com/the-facebook-phone-numbers-are-now-searchable-in-have-i-been-pwned/
  *  - https://twitter.com/UnderTheBreach/status/1378314424239460352
  */
-class FacebookPhones extends Parser implements ParserInterface
+class FacebookPhones extends Parser
 {
     /**
      * {@inheritdoc }

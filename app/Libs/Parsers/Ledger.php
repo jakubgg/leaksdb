@@ -3,7 +3,6 @@
 namespace App\Libs\Parsers;
 
 use App\Libs\Contracts\Abstracts\Parser;
-use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
 
 /**
  * Ledger 2020
@@ -29,7 +28,7 @@ use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
  *  - https://www.ledger.com/addressing-the-july-2020-e-commerce-and-marketing-data-breach
  *  - https://www.ledger.com/message-ledgers-ceo-data-leak
  */
-class Ledger extends Parser implements ParserInterface
+class Ledger extends Parser
 {
     /**
      * {@inheritdoc }

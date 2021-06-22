@@ -3,7 +3,6 @@
 namespace App\Libs\Parsers;
 
 use App\Libs\Contracts\Abstracts\Parser;
-use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
 
 /**
  * Bank Mellat 2021
@@ -25,7 +24,7 @@ use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
  * References: 
  *  - https://hacknotice.com/2021/05/15/33m-bank-mellat-iran/
  */
-class BankMellat extends Parser implements ParserInterface
+class BankMellat extends Parser
 {
     /**
      * {@inheritdoc }

@@ -2,7 +2,9 @@
 
 namespace App\Libs\Contracts\Abstracts;
 
-abstract class Parser
+use App\Libs\Contracts\Interfaces\Parser as InterfacesParser;
+
+abstract class Parser implements InterfacesParser
 {
     /**
      * File Path

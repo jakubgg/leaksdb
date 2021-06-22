@@ -3,7 +3,6 @@
 namespace App\Libs\Parsers;
 
 use App\Libs\Contracts\Abstracts\Parser;
-use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
 
 /**
  * MySpace 2008
@@ -28,7 +27,7 @@ use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
  * References: 
  *  - https://www.troyhunt.com/dating-the-ginormous-myspace-breach/
  */
-class MySpace extends Parser implements ParserInterface
+class MySpace extends Parser
 {
     /**
      * {@inheritdoc }

@@ -3,7 +3,6 @@
 namespace App\Libs\Parsers;
 
 use App\Libs\Contracts\Abstracts\Parser;
-use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
 
 /**
  * Ashley Madison 2015
@@ -34,7 +33,7 @@ use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
  *  - https://www.troyhunt.com/heres-how-im-going-to-handle-ashley/
  *  - https://haveibeenpwned.com/PwnedWebsites#AshleyMadison
  */
-class AshleyMAdison extends Parser implements ParserInterface
+class AshleyMAdison extends Parser
 {
     /**
      * {@inheritdoc }

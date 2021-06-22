@@ -3,7 +3,6 @@
 namespace App\Libs\Parsers;
 
 use App\Libs\Contracts\Abstracts\Parser;
-use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
 
 /**
  * Dropbox 2012
@@ -29,7 +28,7 @@ use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
  *  - https://www.troyhunt.com/the-dropbox-hack-is-real/
  *  - https://www.vice.com/en/article/nz74qb/hackers-stole-over-60-million-dropbox-accounts
  */
-class Dropbox extends Parser implements ParserInterface
+class Dropbox extends Parser
 {
     /**
      * {@inheritdoc }

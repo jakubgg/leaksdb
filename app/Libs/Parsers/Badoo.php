@@ -3,7 +3,6 @@
 namespace App\Libs\Parsers;
 
 use App\Libs\Contracts\Abstracts\Parser;
-use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
 
 /**
  * Badoo 2013
@@ -29,7 +28,7 @@ use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
  *  - https://www.businessinsider.com/clubhouse-data-leak-1-million-users-2021-4
  *  - https://haveibeenpwned.com/PwnedWebsites#Badoo 
  */
-class Badoo extends Parser implements ParserInterface
+class Badoo extends Parser
 {
     /**
      * {@inheritdoc }

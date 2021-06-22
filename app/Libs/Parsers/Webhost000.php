@@ -3,7 +3,6 @@
 namespace App\Libs\Parsers;
 
 use App\Libs\Contracts\Abstracts\Parser;
-use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
 
 /**
  * 000webhost 2015
@@ -26,7 +25,7 @@ use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
  * References: 
  *  - https://www.troyhunt.com/breaches-traders-plain-text-passwords/
  */
-class Webhost000 extends Parser implements ParserInterface
+class Webhost000 extends Parser
 {
     /**
      * {@inheritdoc }

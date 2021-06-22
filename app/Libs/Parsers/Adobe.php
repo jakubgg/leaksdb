@@ -3,7 +3,6 @@
 namespace App\Libs\Parsers;
 
 use App\Libs\Contracts\Abstracts\Parser;
-use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
 
 /**
  * Adobe 2013
@@ -29,7 +28,7 @@ use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
  *  - https://haveibeenpwned.com/PwnedWebsites#Adobe
  *  - https://www.troyhunt.com/adobe-credentials-and-serious/
  */
-class Adobe extends Parser implements ParserInterface
+class Adobe extends Parser
 {
     /**
      * {@inheritdoc }

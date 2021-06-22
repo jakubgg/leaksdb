@@ -3,12 +3,11 @@
 namespace App\Libs\Parsers;
 
 use App\Libs\Contracts\Abstracts\Parser;
-use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
 
 /**
  * Parser for generic user:pass dumps.
  */
-class UserPass extends Parser implements ParserInterface
+class UserPass extends Parser
 {
     /**
      * {@inheritdoc }

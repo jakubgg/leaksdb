@@ -3,7 +3,6 @@
 namespace App\Libs\Parsers;
 
 use App\Libs\Contracts\Abstracts\Parser;
-use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
 
 /**
  * ClubHouse 2021
@@ -25,7 +24,7 @@ use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
  *  - http://fayloobmennik.cloud/7419760
  *  - https://anonfiles.com/tfL362q0u3/user_rar
  */
-class ClubHouse extends Parser implements ParserInterface
+class ClubHouse extends Parser
 {
     /**
      * {@inheritdoc }

@@ -23,7 +23,7 @@ Where:
 * `<parser_class>` PHP Class in `Libs/Parsers` to use (for generic *username:password* or *email:password*, use `UserPass` parser).
 
 Optional parameters:
-* `--delete` Will delete all the ES documents of that leak, based on the leak name.
+* `--delete` Will delete all the ES documents of that leak, based on the leak name (doesn't use the sqlite db).
 * `--test` Will print the parsed data without performing DB changes.
 
 The script will map all the processed files in `database/database.sqlite` file. An already migrated database is included in the repository. If a record exists in the database, the file will be ignored.

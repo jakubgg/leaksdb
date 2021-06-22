@@ -3,7 +3,6 @@
 namespace App\Libs\Parsers;
 
 use App\Libs\Contracts\Abstracts\Parser;
-use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
 
 /**
  * Phone House Spain 2021
@@ -33,7 +32,7 @@ use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
  *  - https://haveibeenpwned.com/PwnedWebsites#PhoneHouse
  *  - https://thetechzone.online/cyberattack-on-phone-house-with-ransomware-and-possible-data-breach/
  */
-class PhoneHouse extends Parser implements ParserInterface
+class PhoneHouse extends Parser
 {
     /**
      * {@inheritdoc }

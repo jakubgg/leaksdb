@@ -3,7 +3,6 @@
 namespace App\Libs\Parsers;
 
 use App\Libs\Contracts\Abstracts\Parser;
-use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
 
 /**
  * LinkedIn 2012
@@ -28,7 +27,7 @@ use App\Libs\Contracts\Interfaces\Parser as ParserInterface;
  * References: 
  *  - https://www.troyhunt.com/observations-and-thoughts-on-the-linkedin-data-breach/
  */
-class LinkedIn extends Parser implements ParserInterface
+class LinkedIn extends Parser
 {
     /**
      * {@inheritdoc }

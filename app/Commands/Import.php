@@ -141,12 +141,11 @@ class Import extends Command
             }
 
             // Prepare the ES request
-            $data['body'][] = [
-                'index' => [
-                    '_index' => env('ES_INDEX'),
-                    '_id' => md5(json_encode($processedLine)),
-                ]
-            ];
+            $indexData['_index'] = env('ES_INDEX');
+            if (env('ES_UNIQUE_ID')) {
+                $indexData['_id'] = md5(json_encode($processedLine));
+            }
+            $data['body'][] = ['index' => $indexData];
             $data['body'][] = $processedLine;
 
             $total++;
@@ -194,7 +193,6 @@ class Import extends Command
             $res = $this->client->bulk($data);
             if ($res['errors']) {
                 $this->error('ES Error');
-                // print_r($res);
             } else {
                 break;
             }

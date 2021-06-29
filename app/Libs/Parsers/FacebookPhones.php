@@ -412,7 +412,7 @@ class FacebookPhones extends Parser
                 return false;
             }
             $data['country'] = $this->country;
-            $data['record'] = $originalLine;
+            // $data['record'] = $originalLine;
 
             return $data;
         }

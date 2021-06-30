@@ -1,0 +1,9 @@
+version: "3.9"
+services:
+  leaksdb-dev:
+    container_name: devleaksdb
+    build:
+      context: .
+      dockerfile: Dockerfile-dev
+    volumes:
+        - ./:/app

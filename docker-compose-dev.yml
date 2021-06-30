@@ -4,6 +4,8 @@ services:
     container_name: devleaksdb
     build:
       context: .
+      args:
+        - XDEBUG_IDEKEY
       dockerfile: Dockerfile-dev
     volumes:
         - ./:/app

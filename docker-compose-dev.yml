@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  leaksdb-dev:
+    container_name: devleaksdb
+    build:
+      context: .
+      args:
+        - XDEBUG_IDEKEY
+      dockerfile: Dockerfile-dev
+    volumes:
+        - ./:/app

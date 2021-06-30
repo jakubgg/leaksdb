@@ -69,17 +69,32 @@ USAGE: leaksdb <command> [options] [arguments]
 Install `PHP Debug` plugin (`felixfbecker.php-debug`).
 Go to `Run` -> `Open Configurations`, which should bring the `launch.json` config file.
 
-in the `"name": "Listen for Xdebug",` section add `"port": 9000,` if not present, and add mappings
+in the `"name": "Listen for Xdebug",` section add port and mappings : 
 
 ```json
-            "pathMappings": {
-                "/app": "${workspaceRoot}"
-            }
+"port": 9000,
+"pathMappings": {
+    "/app": "${workspaceRoot}"
+}
+```
+
+The whole section should look something like this:
+
+```json
+{
+    "name": "Listen for Xdebug",
+    "type": "php",
+    "request": "launch",
+    "port": 9000,
+    "pathMappings": {
+        "/app": "${workspaceRoot}"
+    }
+},
 ```
 
 Mark some break points in your script and press `F5` or go to `Run` -> `Start Debugging`. That should bring out the debug console and start listening on the port 9000 for Xdebug. 
 
-Now run your script and start debugging when the code hit the break point. 
+Now run your script and VSC should stop execution when the code hits the break point. 
 
 ### Elaticsearch + Kibana
 

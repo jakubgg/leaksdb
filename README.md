@@ -46,8 +46,31 @@ docker-compose -f docker-compose-dev.yml up
 
 That will use the `Dockerfile-dev` to bootstrap and build dev image with Xdebug turned on.
 
+By default the container is configured with PHP 7.4-cli and Xdebug 3.x, sending info to the host port 9000 (Xdebug 3.x uses port 9003 by default, so please remember when changing).
 
-By default it will configure container with PHP 7.4-cli and Xdebug 2.8.1 sending info to host port 9000 (Xdebug 3.x uses port 9003 by default, so please remember when changing).
+Xdebug 3.x settings in `Dockerfile-dev`
+
+```
+RUN echo "" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.mode = develop,debug" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.start_with_request = yes" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.client_port = 9000" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.client_host = host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.idekey = $XDEBUG_IDEKEY" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+```
+
+If you would rather use Xdebug 2.x, you have to remove Xdebug 3 config lines (above) and substitute them with the following:
+
+```
+RUN echo "" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.remote_autostart=1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.default_enable=0" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.remote_enable=1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.remote_connect_back = 0" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.remote_host = host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.remote_port=9000" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.idekey=$XDEBUG_IDEKEY" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+```
 
 If you IDE requires `xdebug.idekey` to be set, please set `XDEBUG_IDEKEY=` in the `.env` file. By default this variable is empty.
 

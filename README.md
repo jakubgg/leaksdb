@@ -11,7 +11,7 @@ This project **pretend** to parse public leak dumps (like Adobe, Dropbox...) and
 
 ### Env
 * `ES_URL` URL for the Elasticsearch instance.
-* `ES_INDEX` Elasticsearch index name to use.
+* `ES_INDEX` Elasticsearch index prefix to use (<name>-<leak_name>).
 * `ES_UNIQUE_ID` If set to True, an unique ID will be generated on each document, based in the document fields, to prevent duplicated records. However, this will slow down the import considerably.
 
 ## Importing dumps
@@ -23,7 +23,7 @@ php leaksdb import <leak_name> <dump_path> <parser_class>
 ```
 
 Where:
-* `<leak_name>` leak name (stored as ES field).
+* `<leak_name>` leak name (stored as ES field and used as an index sufix).
 * `<dump_path>` folder containing the uncompressed leak dump files.
 * `<parser_class>` PHP Class in `Libs/Parsers` to use (for generic *username:password* or *email:password*, use `UserPass` parser).
 

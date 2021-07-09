@@ -7,6 +7,7 @@ use App\Models\File;
 use LaravelZero\Framework\Commands\Command;
 use Elasticsearch\ClientBuilder;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Import extends Command
 {
@@ -69,10 +70,9 @@ class Import extends Command
         $this->test = $this->option('test');
 
         if ($this->option('delete')) {
-            $this->delete();
+            $this->deleteESData();
+            Storage::delete(Str::slug($this->name));
         }
-
-        Storage::delete(self::NONPROCESSED);
 
         $parserClassName = 'App\\Libs\\Parsers\\' . $this->argument('parser');
 
@@ -92,6 +92,11 @@ class Import extends Command
         }
     }
 
+    /**
+     * Process a leak file.
+     *
+     * @param Parser $parser
+     */
     private function processFile(Parser $parser)
     {
         $filePath = $parser->getFilePath();
@@ -129,7 +134,7 @@ class Import extends Command
 
             $processedLine = $parser->processLine($line);
             if (!$processedLine) {
-                Storage::append(self::NONPROCESSED, $line, null);
+                Storage::append($this->getNonProcessedLogPath($filePath), $line, null);
                 continue;
             }
 
@@ -141,7 +146,7 @@ class Import extends Command
             }
 
             // Prepare the ES request
-            $indexData['_index'] = env('ES_INDEX');
+            $indexData['_index'] = $this->getIndexName();
             if (env('ES_UNIQUE_ID')) {
                 $indexData['_id'] = md5(json_encode($processedLine));
             }
@@ -183,31 +188,58 @@ class Import extends Command
         }
     }
 
+    /**
+     * Insert bulk data in ES.
+     *
+     * @param array $data
+     */
     private function insert($data)
     {
         if ($this->test) {
             return;
         }
 
-        do {
-            $res = $this->client->bulk($data);
-            if ($res['errors']) {
-                $this->error('ES Error');
-            } else {
-                break;
-            }
-        } while (true);
+        $res = $this->client->bulk($data);
+        if ($res['errors']) {
+            $this->error('ES Error!');
+            print_r($res);
+            die();
+        }
     }
 
-    private function delete()
+    /**
+     * Delete all current leak documents from ES.
+     */
+    private function deleteESData()
     {
         try {
             $this->client->delete([
-                'index' => env('ES_INDEX'),
+                'index' => $this->getIndexName(),
                 'leak' => $this->name,
             ]);
         } catch (\Exception $e) {
             // 
         }
+    }
+
+    /**
+     * Get the index name.
+     *
+     * @return string
+     */
+    private function getIndexName()
+    {
+        return env('ES_INDEX') . '-' . Str::slug($this->name);
+    }
+
+    /**
+     * Get the path for non-processed lines log.
+     *
+     * @param string $filePath
+     * @return string
+     */
+    private function getNonProcessedLogPath($filePath)
+    {
+        return Str::slug($this->name) . '/' . $filePath . '/' . self::NONPROCESSED;
     }
 }

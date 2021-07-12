@@ -26,7 +26,7 @@ class Import extends Command
     protected $description = 'Import dumps from a directory';
 
     /**
-     * ES Client
+     * ES Client.
      *
      * @var Elasticsearch\ClientBuilder
      */
@@ -38,7 +38,7 @@ class Import extends Command
     const CHUNK = 500;
 
     /**
-     * Dump name
+     * Dump name.
      *
      * @var string
      */
@@ -50,6 +50,20 @@ class Import extends Command
      * @var bool
      */
     protected $test = false;
+
+    /**
+     * Total documents in current index.
+     *
+     * @var bool
+     */
+    protected $total = 0;
+
+    /**
+     * Index sufix.
+     *
+     * @var int
+     */
+    protected $indexSufix = 1;
 
     /**
      * Non-processed lines output log.
@@ -73,6 +87,8 @@ class Import extends Command
             $this->deleteESData();
             Storage::delete(Str::slug($this->name));
         }
+
+        $this->countTotalDocuments();
 
         $parserClassName = 'App\\Libs\\Parsers\\' . $this->argument('parser');
 
@@ -154,6 +170,7 @@ class Import extends Command
             $data['body'][] = $processedLine;
 
             $total++;
+            $this->total++;
 
             if ($total % self::CHUNK == 0) {
                 $this->insert($data);
@@ -167,8 +184,8 @@ class Import extends Command
 
         if ($total == 0) {
             $this->error('No lines were processed');
-            exit;
         }
+
         $nonProcessed = $lines - $total;
         if ($nonProcessed) {
             $this->error('Non-processed lines: ' . $nonProcessed);
@@ -223,13 +240,37 @@ class Import extends Command
     }
 
     /**
+     * Get the total documents in the current index.
+     */
+    private function countTotalDocuments()
+    {
+        try {
+            $response = $this->client->count([
+                'index' => $this->getIndexName(),
+            ]);
+            $this->total = $response['count'];
+        } catch (\Exception $e) {
+            //
+        }
+    }
+
+    /**
      * Get the index name.
+     * 
+     * Format: <es_index>-<leak_name>-<count>
      *
      * @return string
      */
     private function getIndexName()
     {
-        return env('ES_INDEX') . '-' . Str::slug($this->name);
+        $name = env('ES_INDEX') . '-' . Str::slug($this->name);
+
+        if ($this->total >= env('ES_MAX_DOCS_PER_INDEX')) {
+            $this->total = 0;
+            $this->indexSufix++;
+        }
+
+        return $name . '-' . str_pad($this->indexSufix, 4, '0', STR_PAD_LEFT);
     }
 
     /**

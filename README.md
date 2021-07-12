@@ -13,7 +13,8 @@ This project **pretend** to parse public leak dumps (like Adobe, Dropbox...) and
 * `ES_URL` URL for the Elasticsearch instance.
 * `ES_INDEX` Elasticsearch index prefix to use (<name>-<leak_name>).
 * `ES_UNIQUE_ID` If set to True, an unique ID will be generated on each document, based in the document fields, to prevent duplicated records. However, this will slow down the import considerably.
-
+* `ES_MAX_DOCS_PER_INDEX` The max documents allowed per index. The script will automatically add the sufix `-0001` and increase that value when the index reach that value.
+  
 ## Importing dumps
 
 Just run the following command (and wait a few days, since is PHP & single-thread script after all):

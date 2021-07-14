@@ -13,7 +13,7 @@ class UserPass extends Parser
     /**
      * {@inheritdoc}
      */
-    protected $extensions = [''];
+    protected $extensions = ['txt','csv',''];
 
     /**
      * {@inheritdoc }

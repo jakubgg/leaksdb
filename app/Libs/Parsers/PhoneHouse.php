@@ -34,6 +34,12 @@ use App\Libs\Contracts\Abstracts\Parser;
  */
 class PhoneHouse extends Parser
 {
+
+    /**
+     * {@inheritdoc }
+     */
+    protected $extensions = ['csv'];
+    
     /**
      * {@inheritdoc }
      */

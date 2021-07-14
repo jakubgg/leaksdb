@@ -19,11 +19,12 @@ abstract class Parser
     protected $separator;
 
     /**
-     * Allowed extensions.
+     * Array of allowed extensions to process.
+     * e.g. ['txt','csv']
      *
      * @var array
      */
-    protected $extensions = ['txt', 'csv'];
+    protected array $extensions;
 
     /**
      * Initializator.

@@ -9,6 +9,12 @@ use App\Libs\Contracts\Abstracts\Parser;
  */
 class UserPass extends Parser
 {
+
+    /**
+     * {@inheritdoc}
+     */
+    protected $extensions = [''];
+
     /**
      * {@inheritdoc }
      */

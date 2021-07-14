@@ -38,7 +38,7 @@ class AshleyMAdison extends Parser
     /**
      * {@inheritdoc }
      */
-    protected $extensions = ['csv'];
+    protected array $extensions = ['csv'];
 
     /**
      * {@inheritdoc }

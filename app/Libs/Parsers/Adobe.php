@@ -33,7 +33,7 @@ class Adobe extends Parser
     /**
      * {@inheritdoc }
      */
-    protected $extensions = ['txt'];
+    protected array $extensions = ['txt'];
 
     /**
      * {@inheritdoc }

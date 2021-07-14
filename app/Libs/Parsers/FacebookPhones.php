@@ -38,7 +38,7 @@ class FacebookPhones extends Parser
     /**
      * {@inheritdoc }
      */
-    protected $extensions = ['txt'];
+    protected array $extensions = ['txt'];
 
     /**
      * Country (based on the file name)

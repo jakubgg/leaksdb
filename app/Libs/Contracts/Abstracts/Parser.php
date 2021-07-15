@@ -86,13 +86,10 @@ abstract class Parser
      */
     public function countLines()
     {
-        $handle = fopen($this->filePath, 'r');
-        $count = 0;
-        while (fgets($handle)) {
-            $count++;
-        }
-        fclose($handle);
-        return $count;
+        $file = new \SplFileObject($this->filePath, 'r');
+        $file->seek(PHP_INT_MAX);
+
+        return $file->key() + 1;
     }
 
     /**

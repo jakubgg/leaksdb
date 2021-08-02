@@ -131,6 +131,11 @@ class Import extends Command
         }
 
         $lines = $parser->countLines();
+        if (!$lines) {
+            $this->error('File is empty!');
+            return;
+        }
+
         $this->comment('File contains ' . number_format($lines, 0, '', '.') . ' records.');
         $bar = $this->output->createProgressBar($lines);
         $bar->setFormat(' %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s% %memory:6s%');

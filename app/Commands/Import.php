@@ -4,6 +4,7 @@ namespace App\Commands;
 
 use App\Libs\Contracts\Abstracts\Parser;
 use App\Models\File;
+use http\Env;
 use LaravelZero\Framework\Commands\Command;
 use Elasticsearch\ClientBuilder;
 use Illuminate\Support\Facades\Storage;
@@ -35,7 +36,7 @@ class Import extends Command
     /**
      * Chunk size
      */
-    const CHUNK = 500;
+    protected $chunk;
 
     /**
      * Dump name.
@@ -69,6 +70,13 @@ class Import extends Command
      * Non-processed lines output log.
      */
     const NONPROCESSED = 'non-processed.txt';
+
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->chunk = env('LEAKS_CHUNK');
+    }
 
     /**
      * Execute the console command.
@@ -172,7 +180,7 @@ class Import extends Command
             $total++;
             $this->total++;
 
-            if ($total % self::CHUNK == 0) {
+            if ($total % $this->chunk == 0) {
                 $this->insert($data);
                 $data['body'] = [];
             }

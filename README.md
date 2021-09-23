@@ -1,6 +1,9 @@
 # LeaksDB
 
-This project **pretend** to parse public leak dumps (like Adobe, Dropbox...) and store those in Elasticsearch.
+This project is intended for security researchers and academics. It allows you to take a dataset, parse it and store it in the Elasticsearch database for further analysis. 
+It provides a base framework for easy creation of new dataset parsers for importing custom data. Some example parsers are already provided. 
+
+Please use this project only with data you own and/or can legally utilize. 
 
 ## Usage
 

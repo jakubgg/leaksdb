@@ -16,7 +16,7 @@ Please use this project only with data you own and/or can legally utilize.
 * `ES_URL` URL for the Elasticsearch instance.
 * `ES_INDEX` Elasticsearch index prefix to use (<name>-<leak_name>).
 * `ES_UNIQUE_ID` If set to True, an unique ID will be generated on each document, based in the document fields, to prevent duplicated records. However, this will slow down the import considerably.
-* `ES_MAX_DOCS_PER_INDEX` The max documents allowed per index. The script will automatically add the sufix `-0001` and increase that value when the index reach that value.
+* `ES_MAX_DOCS_PER_INDEX` The max documents allowed per index. The script will automatically add the suffix `-0001` and increase that value when the index reach that value.
   
 ## Importing dumps
 
@@ -27,7 +27,7 @@ php leaksdb import <leak_name> <dump_path> <parser_class>
 ```
 
 Where:
-* `<leak_name>` leak name (stored as ES field and used as an index sufix).
+* `<leak_name>` leak name (stored as ES field and used as an index suffix).
 * `<dump_path>` folder containing the uncompressed leak dump files.
 * `<parser_class>` PHP Class in `Libs/Parsers` to use (for generic *username:password* or *email:password*, use `UserPass` parser).
 
@@ -150,3 +150,7 @@ Where:
 * `<lines>`: Number of lines to store.
 * `<dump_path>`: folder containing the uncompressed leak dump files.
 * `<output_path>`: folder to store the samples.
+
+
+## License
+[GNU General Public License v3.0](https://choosealicense.com/licenses/gpl-3.0/)
